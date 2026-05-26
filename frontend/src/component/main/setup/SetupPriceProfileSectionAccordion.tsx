@@ -18,6 +18,7 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 export default function SetupPriceProfileSectionAccordion() {
 
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [productScope, setProductScope] = useState<ProductScope>("all");
   const [filters, setFilters] = useState<ProductFilters>({
     name: "",
@@ -26,17 +27,6 @@ export default function SetupPriceProfileSectionAccordion() {
     segment: "",
     brand: "",
   });
-
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  const handleToggle = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
-    );
-  };
-
   
   return (
     <div className="flex w-full flex-col items-start gap-[10px] rounded-lg bg-white p-[26px]">
@@ -68,6 +58,8 @@ export default function SetupPriceProfileSectionAccordion() {
       <div className="flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
         <ProductPicker
           products={MOCK_PRODUCTS}
+          selectedIds={selectedProductIds}
+          setSelectedIds={setSelectedProductIds}
         />
       </div>
     </div>

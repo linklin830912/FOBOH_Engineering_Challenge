@@ -10,20 +10,21 @@ type Product = {
 interface ProductPickerProps {
     products: Product[];
     profileName?: string;
+    selectedIds: string[];
+    setSelectedIds: (ids: string[]) => void;
 }
 
-export default function ProductPickerParent({ products, profileName }: ProductPickerProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+export default function ProductPickerParent({ products, profileName, selectedIds, setSelectedIds }: ProductPickerProps) {
 
   const allSelected = selectedIds.length === products.length;
 
   const handleToggle = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
-    );
-  };
+  const next = selectedIds.includes(id)
+    ? selectedIds.filter((x) => x !== id)
+    : [...selectedIds, id];
+
+    setSelectedIds(next);
+    };
 
   const handleSelectAll = () => {
     setSelectedIds(products.map((p) => p.id));
