@@ -5,17 +5,10 @@ import ProductPicker from "./ProductPicker";
 import { Product } from "../../../../type/Pricing";
 import { getProducts } from "../../../../api/getProducts";
 
-// Mock data (replace with API later)
-const MOCK_PRODUCTS: Product[] = [
-  { id: "1", title: "Nike Air Max", sku: "NIKE-001", brand: "Nike", subCategory: "Running", segment: "Men", price: 129.99 },
-  { id: "2", title: "Adidas Ultraboost", sku: "ADID-002", brand: "Adidas", subCategory: "Running", segment: "Women", price: 149.99 },
-  { id: "3", title: "Puma Runner", sku: "PUMA-003", brand: "Puma", subCategory: "Running", segment: "Unisex", price: 99.99 },
-  { id: "4", title: "Reebok Classic", sku: "REEB-004", brand: "Reebok", subCategory: "Training", segment: "Men", price: 89.99 },
-];
 export default function SetupPriceProfileSectionAccordion() {
 
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [productScope, setProductScope] = useState<ProductScope>("all");
   const [productFilters, setProductFilters] = useState<ProductFilters>({
     title: "",
@@ -69,8 +62,8 @@ export default function SetupPriceProfileSectionAccordion() {
       <div className="flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
         <ProductPicker
           products={products}
-          selectedIds={selectedProductIds}
-          setSelectedIds={setSelectedProductIds}
+          selectedProducts={selectedProducts}
+          setSelectedProducts={setSelectedProducts}
         />
       </div>
     </div>

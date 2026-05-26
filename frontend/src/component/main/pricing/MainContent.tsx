@@ -1,3 +1,5 @@
+import BasedOnSelector from "./calculate/BasedOnSelector";
+import CalculatePriceProfileSectionAccordion from "./calculate/CaculatePriceProfileSectionAccordion";
 import PriceProfileHeader from "./PriceProfileHeader";
 import PriceProfileSectionAccordion from "./PriceProfileSectionAccordion";
 import SetupPriceProfileSectionAccordion from "./setup/SetupPriceProfileSectionAccordion";
@@ -17,6 +19,8 @@ export default function MainContent() {
         {/* Section 2 */}
         <div className="mt-4">
           <SetupPriceProfileSectionAccordion />
+
+          {/* <CalculatePriceProfileSectionAccordion selectedProducts={selectedProducts} /> */}
         </div>
       </div>
     </main>

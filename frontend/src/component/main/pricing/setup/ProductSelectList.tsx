@@ -4,13 +4,13 @@ import { Product } from "../../../../type/Pricing";
 
 type ProductSelectListProps = {
   products: Product[];
-  selectedIds: string[];
-  onToggle: (id: string) => void;
+  selectedProducts: Product[];
+  onToggle: (product: Product) => void;
 };
 
 export default function ProductSelectList({
   products,
-  selectedIds,
+  selectedProducts,
   onToggle,
 }: ProductSelectListProps) {
   return (
@@ -20,8 +20,8 @@ export default function ProductSelectList({
           key={product.id}
           productName={product.title}
           sku={product.sku}
-          checked={selectedIds.includes(product.id)}
-          onChange={() => onToggle(product.id)}
+          checked={selectedProducts.includes(product)}
+          onChange={() => onToggle(product)}
         />
       ))}
 

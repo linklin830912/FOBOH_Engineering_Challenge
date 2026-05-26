@@ -7,28 +7,28 @@ import { Product } from "../../../../type/Pricing";
 interface ProductPickerProps {
     products: Product[];
     profileName?: string;
-    selectedIds: string[];
-    setSelectedIds: (ids: string[]) => void;
+    selectedProducts: Product[];
+    setSelectedProducts: (products: Product[]) => void;
 }
 
-export default function ProductPicker({ products, profileName, selectedIds, setSelectedIds }: ProductPickerProps) {
+export default function ProductPicker({ products, profileName, selectedProducts, setSelectedProducts }: ProductPickerProps) {
 
-  const allSelected = selectedIds.length === products.length;
+  const allSelected = selectedProducts.length === products.length;
 
-  const handleToggle = (id: string) => {
-  const next = selectedIds.includes(id)
-    ? selectedIds.filter((x) => x !== id)
-    : [...selectedIds, id];
+  const handleToggle = (product: Product) => {
+  const next = selectedProducts.includes(product)
+    ? selectedProducts.filter((p) => p !== product)
+    : [...selectedProducts, product];
 
-    setSelectedIds(next);
+    setSelectedProducts(next);
     };
 
   const handleSelectAll = () => {
-    setSelectedIds(products.map((p) => p.id));
+    setSelectedProducts(products);
   };
 
   const handleDeselectAll = () => {
-    setSelectedIds([]);
+    setSelectedProducts([]);
   };
 
   return (
@@ -44,13 +44,13 @@ export default function ProductPicker({ products, profileName, selectedIds, setS
       {/* Product List */}
       <ProductSelectList
         products={products}
-        selectedIds={selectedIds}
+        selectedProducts={selectedProducts}
         onToggle={handleToggle}
       />
 
       {/* Debug */}
       <div className="text-sm text-[#637381]">
-        You’ve selected {selectedIds.length} Products, these will be added to the {profileName || "Price Profile"}.
+        You’ve selected {selectedProducts.length} Products, these will be added to the {profileName || "Price Profile"}.
       </div>
 
     </div>
