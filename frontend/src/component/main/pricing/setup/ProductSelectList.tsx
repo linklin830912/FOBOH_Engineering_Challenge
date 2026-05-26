@@ -1,11 +1,6 @@
 import React from "react";
 import ProductSelectRow from "./ProductSelectRow";
-
-type Product = {
-  id: string;
-  name: string;
-  sku: string;
-};
+import { Product } from "../../../../type/Pricing";
 
 type ProductSelectListProps = {
   products: Product[];
@@ -20,10 +15,10 @@ export default function ProductSelectList({
 }: ProductSelectListProps) {
   return (
     <div className="flex flex-col items-start gap-[16px] w-[352px] h-[314px] overflow-y-auto p-0">
-      {products.map((product) => (
+      {products.map((product, i) => (
         <ProductSelectRow
           key={product.id}
-          productName={product.name}
+          productName={product.title}
           sku={product.sku}
           checked={selectedIds.includes(product.id)}
           onChange={() => onToggle(product.id)}

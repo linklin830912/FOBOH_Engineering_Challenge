@@ -1,12 +1,9 @@
 import React, { useState, useMemo } from "react";
 import ProductSelectList from "./ProductSelectList";
 import SelectAllControls from "./SelectAllControls";
+import { Product } from "../../../../type/Pricing";
 
-type Product = {
-  id: string;
-  name: string;
-  sku: string;
-};
+
 interface ProductPickerProps {
     products: Product[];
     profileName?: string;
@@ -14,7 +11,7 @@ interface ProductPickerProps {
     setSelectedIds: (ids: string[]) => void;
 }
 
-export default function ProductPickerParent({ products, profileName, selectedIds, setSelectedIds }: ProductPickerProps) {
+export default function ProductPicker({ products, profileName, selectedIds, setSelectedIds }: ProductPickerProps) {
 
   const allSelected = selectedIds.length === products.length;
 

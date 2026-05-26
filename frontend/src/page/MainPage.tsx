@@ -1,4 +1,4 @@
-import MainContent from "../component/main/MainContent";
+import MainContent from "../component/main/pricing/MainContent";
 import Sidebar from "../component/side/Sidebar";
 import Header from "../component/top/Header";
 

@@ -1,32 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductScopeSelector, { ProductScope } from "./ProductScopeSelector";
 import ProductSearchSection, { ProductFilters } from "./ProductSearchSection";
-import ProductSelectList from "./ProductSelectList";
 import ProductPicker from "./ProductPicker";
+import { Product } from "../../../../type/Pricing";
+import { getProducts } from "../../../../api/getProducts";
 
-type Product = {
-  id: string;
-  name: string;
-  sku: string;
-};
 // Mock data (replace with API later)
 const MOCK_PRODUCTS: Product[] = [
-  { id: "1", name: "Nike Air Max", sku: "NIKE-001" },
-  { id: "2", name: "Adidas Ultraboost", sku: "ADID-002" },
-  { id: "3", name: "Puma Runner", sku: "PUMA-003" },
-  { id: "4", name: "Reebok Classic", sku: "REEB-004" },
+  { id: "1", title: "Nike Air Max", sku: "NIKE-001", brand: "Nike", subCategory: "Running", segment: "Men", price: 129.99 },
+  { id: "2", title: "Adidas Ultraboost", sku: "ADID-002", brand: "Adidas", subCategory: "Running", segment: "Women", price: 149.99 },
+  { id: "3", title: "Puma Runner", sku: "PUMA-003", brand: "Puma", subCategory: "Running", segment: "Unisex", price: 99.99 },
+  { id: "4", title: "Reebok Classic", sku: "REEB-004", brand: "Reebok", subCategory: "Training", segment: "Men", price: 89.99 },
 ];
 export default function SetupPriceProfileSectionAccordion() {
 
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [productScope, setProductScope] = useState<ProductScope>("all");
-  const [filters, setFilters] = useState<ProductFilters>({
-    name: "",
-    sku: "",
-    category: "",
+  const [productFilters, setProductFilters] = useState<ProductFilters>({
+    title: "",
+    sku: "",  
+    subCategory: "",
     segment: "",
     brand: "",
   });
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try { 
+        const data = await getProducts(productFilters);
+        console.log("Fetched products with filters",  data);
+        setProducts(data);
+      } catch (err) { 
+        console.error("Error fetching products:", err);
+      }
+    }
+    fetchProducts();
+  }, [productFilters]);
+  
   
   return (
     <div className="flex w-full flex-col items-start gap-[10px] rounded-lg bg-white p-[26px]">
@@ -53,11 +64,11 @@ export default function SetupPriceProfileSectionAccordion() {
         <ProductScopeSelector value={productScope} onChange={setProductScope} />
       </div>
       <div className="flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
-        <ProductSearchSection value={filters} onChange={setFilters} />
+        <ProductSearchSection productFilters={productFilters} setProductFilters={setProductFilters} />
       </div>
       <div className="flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
         <ProductPicker
-          products={MOCK_PRODUCTS}
+          products={products}
           selectedIds={selectedProductIds}
           setSelectedIds={setSelectedProductIds}
         />
