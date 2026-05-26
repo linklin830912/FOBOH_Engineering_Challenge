@@ -1,35 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ProductScopeSelector, { ProductScope } from "./ProductScopeSelector";
-import ProductSearchSection, { ProductFilters } from "./ProductSearchSection";
+import ProductSearchSection, { FilterOptions, ProductFilters } from "./ProductSearchSection";
 import ProductPicker from "./ProductPicker";
 import { Product } from "../../../../type/Pricing";
-import { getProducts } from "../../../../api/getProducts";
 
-export default function SetupPriceProfileSectionAccordion() {
+interface SetupPriceProfileSectionAccordionProps { 
+  productFilters: ProductFilters;
+  setProductFilters: React.Dispatch<React.SetStateAction<ProductFilters>>;
+  products: Product[];
+  filters: FilterOptions;
+  selectedProducts: Product[];
+  setSelectedProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+}
+export default function SetupPriceProfileSectionAccordion({ productFilters, setProductFilters, products, filters, selectedProducts, setSelectedProducts }: SetupPriceProfileSectionAccordionProps) {
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  
   const [productScope, setProductScope] = useState<ProductScope>("all");
-  const [productFilters, setProductFilters] = useState<ProductFilters>({
-    title: "",
-    sku: "",  
-    subCategory: "",
-    segment: "",
-    brand: "",
-  });
-
-  useEffect(() => {
-    async function fetchProducts() {
-      try { 
-        const data = await getProducts(productFilters);
-        console.log("Fetched products with filters",  data);
-        setProducts(data);
-      } catch (err) { 
-        console.error("Error fetching products:", err);
-      }
-    }
-    fetchProducts();
-  }, [productFilters]);
   
   
   return (
@@ -57,7 +43,7 @@ export default function SetupPriceProfileSectionAccordion() {
         <ProductScopeSelector value={productScope} onChange={setProductScope} />
       </div>
       <div className="flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
-        <ProductSearchSection productFilters={productFilters} setProductFilters={setProductFilters} />
+        <ProductSearchSection productFilters={productFilters} setProductFilters={setProductFilters} filters={filters}/>
       </div>
       <div className="flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
         <ProductPicker

@@ -1,13 +1,13 @@
 export type AdjustmentMode = "fixed" | "dynamic";
 
 interface AdjustmentModeSelectorProps {
-  value: AdjustmentMode;
-  onChange: (value: AdjustmentMode) => void;
+  adjustmentMode: AdjustmentMode;
+  setAdjustmentMode: (value: AdjustmentMode) => void;
 }
 
 export default function AdjustmentModeSelector({
-  value,
-  onChange,
+  adjustmentMode,
+  setAdjustmentMode,
 }: AdjustmentModeSelectorProps) {
     return (
         <div className="flex flex-col gap-3">
@@ -22,10 +22,10 @@ export default function AdjustmentModeSelector({
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="radio"
-          name="productScope"
+          name="adjustmentMode"
           value="fixed"
-          checked={value === "fixed"}
-          onChange={() => onChange("fixed")}
+          checked={adjustmentMode === "fixed"}
+          onChange={() => setAdjustmentMode("fixed")}
           className="accent-[#147D73]"
         />
         <span className="text-sm text-[#212B36]">Fixed ($)</span>
@@ -34,10 +34,10 @@ export default function AdjustmentModeSelector({
                 <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="radio"
-          name="productScope"
+          name="adjustmentMode"
           value="dynamic"
-          checked={value === "dynamic"}
-          onChange={() => onChange("dynamic")}
+          checked={adjustmentMode === "dynamic"}
+          onChange={() => setAdjustmentMode("dynamic")}
           className="accent-[#147D73]"
         />
         <span className="text-sm text-[#212B36]">Dynamic (%)</span>

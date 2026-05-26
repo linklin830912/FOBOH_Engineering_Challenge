@@ -1,8 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { Product } from "../../../../type/Pricing";
+import { AdjustmentMode } from "./AdjustmentModeSelector";
+import { AdjustmentIncrementMode } from "./AdjustmentIncrementModeSelector";
 
-type ProductPriceRow = {
+export type ProductPriceRow = {
   id: string;
   checked: boolean;
   title: string;
@@ -14,29 +16,28 @@ type ProductPriceRow = {
 };
 
 type NewPriceTableProps = {
-  selectedProducts: Product[];
+    adjustmentMode: AdjustmentMode;
+    adjustmentIncrementMode: AdjustmentIncrementMode;
+  productPriceRows: ProductPriceRow[];
   onToggleRow: (id: string) => void;
-  onRefresh: () => void;
+    onRefresh: () => void;
+  onAdjustmentChange: (
+  id: string,
+  value: number
+) => void;
 };
 
 export default function NewPriceTable({
-  selectedProducts,
+    adjustmentMode,
+    adjustmentIncrementMode,
+  productPriceRows,
   onToggleRow,
   onRefresh,
+  onAdjustmentChange
 }: NewPriceTableProps) {
-    const productPriceRows = useMemo(() => {
-      if (!selectedProducts) return [];
-        return selectedProducts.map((product) => ({
-            id: product.id,
-            checked: false,
-            title: product.title,
-            sku: product.sku,
-            category: product.subCategory,
-            basedOnPrice: product.price,
-            adjustment: 0, // Placeholder, should be calculated based on pricing profile
-            newPrice: product.price, // Placeholder, should be calculated based on adjustment
-        }));
-    }, [selectedProducts]);
+
+    
+
   return (
     <div className="flex flex-col justify-center items-start gap-[12px] w-[1019px]">
 
@@ -136,15 +137,35 @@ export default function NewPriceTable({
 
             {/* Adjustment */}
             <div className="flex items-center px-[12px] w-[163px] border border-[#08822A] bg-[#F4FFF7]">
-              <div className="flex items-center gap-[8px]">
-                <span className="text-sm font-medium text-[#637381]">
-                  -$
+
+            <div className="flex items-center gap-[8px] w-full">
+
+                {/* Prefix */}
+                <span className="text-sm font-medium text-[#637381] whitespace-nowrap">
+                {adjustmentIncrementMode === "increase" ? "+" : "-"}
+                {adjustmentMode === "fixed" ? "$" : "%"}
                 </span>
 
-                <span className="text-sm font-medium text-[#212B36]">
-                  {row.adjustment.toFixed(2)}
-                </span>
-              </div>
+                {/* Input */}
+                <input
+                    value={row.adjustment}
+                            onChange={(e) => {
+                                let value = Number(e.target.value);
+                                if(adjustmentMode === "dynamic") {
+                                        value = Math.min(
+                                        100,
+                                        Math.max(0, value)
+                                    );
+                                }else if(adjustmentMode === "fixed" && adjustmentIncrementMode === "decrease") {
+                                    value = Math.min(row.basedOnPrice, value);
+                                }
+                        onAdjustmentChange(row.id, value);                        
+                    }
+                    }
+                    className="w-full bg-transparent outline-none text-sm font-medium text-[#212B36]"
+                />
+
+            </div>
             </div>
 
             {/* New Price */}

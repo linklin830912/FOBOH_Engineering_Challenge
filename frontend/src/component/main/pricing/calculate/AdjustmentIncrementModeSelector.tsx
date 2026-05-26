@@ -1,8 +1,8 @@
-export type AdjustmentIncrementModeSelector = "increase" | "decrease";
+export type AdjustmentIncrementMode = "increase" | "decrease";
 
 interface AdjustmentIncrementModeSelectorProps {
-  value: AdjustmentIncrementModeSelector;
-  onChange: (value: AdjustmentIncrementModeSelector) => void;
+  value: AdjustmentIncrementMode;
+  onChange: (value: AdjustmentIncrementMode) => void;
 }
 
 export default function AdjustmentIncrementModeSelector({
@@ -22,7 +22,7 @@ export default function AdjustmentIncrementModeSelector({
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="radio"
-          name="productScope"
+          name="adjustmentIncrementMode"
           value="increase"
           checked={value === "increase"}
           onChange={() => onChange("increase")}
@@ -34,7 +34,7 @@ export default function AdjustmentIncrementModeSelector({
                 <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="radio"
-          name="productScope"
+          name="adjustmentIncrementMode"
           value="decrease"
           checked={value === "decrease"}
           onChange={() => onChange("decrease")}

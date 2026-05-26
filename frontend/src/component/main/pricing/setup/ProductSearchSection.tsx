@@ -14,42 +14,20 @@ export type ProductFilters = {
 type ProductSearchSectionProps = {
   productFilters: ProductFilters;
   setProductFilters: React.Dispatch<React.SetStateAction<ProductFilters>>;
+  filters: FilterOptions;
 };
-type FilterOptions = {
+export type FilterOptions = {
   categories: string[];
   segments: string[];
   brands: string[];
 };
 
-export default function ProductSearchSection({ productFilters, setProductFilters }: ProductSearchSectionProps) {
+export default function ProductSearchSection({ productFilters, setProductFilters, filters }: ProductSearchSectionProps) {
 
-  const [filters, setFilters] = useState<FilterOptions | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
 
-  useEffect(() => {
-    async function loadFilters() {
-      try {
-        setLoading(true);
-        const data = await getProductFilters();
-        console.log("Received filters in component:", data.categories);
-        setFilters(data);
-      } catch (err) {
-        setError("Failed to load filters");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadFilters();
-  }, []);
+  
 
-  if (loading) {
-    return <div>Loading filters...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
 
   return (
     <div className="flex w-[1014px] h-[80px] flex-col justify-center items-start gap-[12px] p-0">
