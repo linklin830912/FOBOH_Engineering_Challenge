@@ -1,5 +1,6 @@
 import PriceProfileHeader from "./PriceProfileHeader";
 import PriceProfileSectionAccordion from "./PriceProfileSectionAccordion";
+import SetupPriceProfileSectionAccordion from "./setup/SetupPriceProfileSectionAccordion";
 
 export default function MainContent() {
   return (
@@ -15,7 +16,7 @@ export default function MainContent() {
 
         {/* Section 2 */}
         <div className="mt-4">
-          <PriceProfileSectionAccordion />
+          <SetupPriceProfileSectionAccordion />
         </div>
       </div>
     </main>
