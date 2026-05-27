@@ -2,27 +2,21 @@ import { CustomerGroup } from "../model/Customer";
 import { AdjustmentIncrementMode, AdjustmentMode, PricingProfile } from "../model/PricingProfile";
 import { MOCK_CUSTOMER_GROUPS_STORE, MOCK_CUSTOMERS_STORE, MOCK_PRICING_PROFILES_STORE } from "../store/db";
 
-function createPricingProfile(data: {
-  id?: string;
-  name?: string;
+export function createPricingProfile(data: {
   adjustmentMode: AdjustmentMode;
   adjustmentIncrementMode: AdjustmentIncrementMode;
   adjustmentValue: number;
   productIds: string[];
   customerGroupIds?: string[];
-  customerIds?: string[];
-  priority?: number;
-  isActive?: boolean;
-  createdAt?: Date;
+  customerIds: string[];
+  priority: number;
+  allProducts: boolean;
+  name: string;
 }) {
   let finalCustomerGroupIds = [
     ...(data.customerGroupIds || []),
-  ];
-
-  // =========================================================
-  // CREATE AUTO GROUP
-  // =========================================================
-
+    ];
+    
   if ((data.customerIds || []).length > 0) {
     const newGroup: CustomerGroup = {
       id: `CG_${Date.now()}`,
@@ -55,29 +49,24 @@ function createPricingProfile(data: {
   }
 
   const newProfile: PricingProfile = {
-    id: data.id || `PP_${Date.now()}`,
-    name:
-      data.name ||
+    id: `PP_${Date.now()}`,
+    name: data.name ||
       `Price Profile ${
         MOCK_PRICING_PROFILES_STORE.length + 1
       }`,
     adjustmentMode: data.adjustmentMode,
     adjustmentIncrementMode:
-      data.adjustmentIncrementMode,
+    data.adjustmentIncrementMode,
     adjustmentValue: data.adjustmentValue,
     productIds: data.productIds,
     customerGroupIds: finalCustomerGroupIds,
     priority: data.priority ?? 0,
-    isActive: data.isActive ?? true,
-    createdAt: data.createdAt || new Date(),
+    allProducts: data.allProducts ?? false,
+    createdAt: new Date(),
     updatedAt: new Date(),
   };
 
   MOCK_PRICING_PROFILES_STORE.push(newProfile);
-
-  // =========================================================
-  // SYNC GROUP.priceProfileIds
-  // =========================================================
 
   finalCustomerGroupIds.forEach((groupId) => {
     const group = MOCK_CUSTOMER_GROUPS_STORE.find(
@@ -96,7 +85,7 @@ function createPricingProfile(data: {
   return newProfile;
 }
 
-function deletePricingProfile(id: string) {
+export function deletePricingProfile(id: string) {
   const profileIndex = MOCK_PRICING_PROFILES_STORE.findIndex(
     (p) => p.id === id
   );
@@ -112,10 +101,6 @@ function deletePricingProfile(id: string) {
     deletedProfile.customerGroupIds || [];
 
   const groupsToDelete: string[] = [];
-
-  // =========================================================
-  // CLEAN GROUP RELATIONS
-  // =========================================================
 
   MOCK_CUSTOMER_GROUPS_STORE.forEach((group) => {
     if (!relatedGroupIds.includes(group.id)) return;
@@ -143,10 +128,8 @@ function deletePricingProfile(id: string) {
     }
   });
 
-  // =========================================================
-  // REMOVE AUTO GROUPS
-  // =========================================================
 
+  // REMOVE AUTO GROUPS
   groupsToDelete.forEach((groupId) => {
     const index = MOCK_CUSTOMER_GROUPS_STORE.findIndex(
       (g) => g.id === groupId

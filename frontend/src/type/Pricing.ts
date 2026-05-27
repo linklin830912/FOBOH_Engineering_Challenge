@@ -12,7 +12,7 @@ export type PricingProfile = {
   productIds: string[];
 
   priority: number;
-  isActive: boolean;
+  allProducts?: boolean;
 
   createdAt: Date;
   updatedAt?: Date;

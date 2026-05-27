@@ -1,10 +1,9 @@
 # FOBOH Engineering Challenge
 
-# Frontend README
-Frontend application for the FOBOH Engineering Challenge.
-Built with React, TypeScript, Tailwind CSS, and Vite.
+# In Precedence Rule.
+As a supplier, I will be able to adjust the priority level of my price profiles (with an additional UI for priority selection). When a customer is connected to multiple price profiles, the system will first rank them by priority from high to low. If multiple price profiles share the same priority level, the lowest price among them will be selected.
 
-## Setup
+## Setup-frontend
 ```
 git clone https://github.com/linklin830912/FOBOH_Engineering_Challenge.git
 cd FOBOH_Engineering_Challenge/frontend
@@ -14,68 +13,19 @@ npm run dev
 ## Run on
 http://localhost:5173
 
-## Tech Stack
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- Lucide React
-- Axios
 
----
-
-## Project Structure
-
-```bash
-src/
-├── api/                # API request functions
-├── components/         # Shared reusable UI components
-├── pages/              # Route pages
-├── layouts/            # Layout components
-├── types/              # Shared TypeScript types
-├── mocks/              # Mock data
-├── hooks/              # Custom React hooks
-├── utils/              # Utility functions
-└── main.tsx
+## Setup-backend
 ```
-
-# Backend README
-Backend API service for the FOBOH Engineering Challenge.
-Built with Node.js, Express, TypeScript, and Prisma-style relational architecture.
-
-## Setup
-```
-git clone https://github.com/linklin830912/FOBOH_Engineering_Challenge.git
-cd FOBOH_Engineering_Challenge/frontend
+cd FOBOH_Engineering_Challenge/backend
 npm install
 npm run dev
 ```
 ## Run on
-http://localhost:5173
+http://localhost:3001
 
-## Tech Stack
+## Swagger on
+http://localhost:3001/api-docs/#/
 
-- Node.js
-- Express.js
-- TypeScript
-- Prisma schema design
-- REST API architecture
-- Swagger/OpenAPI
-- In-memory mock database
+# Trade-Offs
 
----
-
-## Project Structure
-
-```bash
-src/
-├── controllers/        # Route controllers
-├── routes/             # Express route definitions
-├── services/           # Business logic
-├── data/               # Mock in-memory data
-├── types/              # Shared TypeScript types
-├── utils/              # Utility helpers
-├── swagger/            # Swagger configuration
-├── middleware/         # Express middleware
-└── server.ts
+# What's Next

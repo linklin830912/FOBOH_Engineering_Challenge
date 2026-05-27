@@ -10,6 +10,8 @@ export type PriceProfileOptions = {
   adjustmentMode: AdjustmentMode;
   adjustmentIncrementMode: AdjustmentIncrementMode;
   adjustmentValue: number;
+  priority: number;
+  allProducts?: boolean;
 };
 
 interface CalculatePriceProfileSectionAccordionProps {
@@ -20,9 +22,9 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
 
   const [adjustmentMode, setAdjustmentMode] = useState<AdjustmentMode>("fixed");
   const [adjustmentIncrementMode, setAdjustmentIncrementMode] = useState<AdjustmentIncrementMode>("increase");
-  const [adjustmentValue, setAdjustmentValue] = useState<number>(0);
-  
+  const [adjustmentValue, setAdjustmentValue] = useState<number>(0);  
   const [productPriceRows, setProductPriceRows] = useState<ProductPriceRow[]>([]);
+  const [priority, setPriority] = useState<number>(0);
 
     useEffect(() => {
         const rows = selectedProducts.map((product) => ({
@@ -43,8 +45,9 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
       adjustmentMode,
       adjustmentIncrementMode,
       adjustmentValue,
+      priority,
     });
-  }, [adjustmentMode, adjustmentIncrementMode, adjustmentValue, setPriceProfileOptions]);
+  }, [adjustmentMode, adjustmentIncrementMode, adjustmentValue, priority, setPriceProfileOptions]);
 
   const onAdjustmentChange = (id: string, value: number) => {
     setAdjustmentValue(value);
@@ -75,7 +78,7 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
   return (
     <div className="flex w-full flex-col items-start gap-[10px] rounded-lg bg-white p-[26px]">
 
-      <BasedOnSelector/>
+      <BasedOnSelector priority={priority} setPriority={setPriority} />
 
       <div className="w-full flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-b border-[#F0F0F0]">
         <AdjustmentModeSelector adjustmentMode={adjustmentMode} setAdjustmentMode={setAdjustmentMode} />

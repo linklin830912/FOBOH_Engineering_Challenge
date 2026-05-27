@@ -43,7 +43,7 @@ export default function SetupPriceProfileSectionAccordion({
       </div>
       {
         productScope === "all" && <div className="text-sm text-[#637381]">
-          You've selected All Products, these will be added to the Price Profile.
+          You've selected All Products, all current and future products will be included in this pricing profile
         </div>
       }
       {productScope!=="all" &&<>

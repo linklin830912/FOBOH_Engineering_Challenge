@@ -48,6 +48,7 @@ export default function MainContent() {
   const handleProductScopeChange = (scope: ProductScope) => {
     if (scope === "all") {
       setSelectedProducts(products);
+      setPriceProfileOptions((prev) => prev ? { ...prev, allProducts: true } : null);
     } else {
       setSelectedProducts([]);
     }
@@ -72,7 +73,6 @@ export default function MainContent() {
   }
 
   const handlePriceProfileChange = async(newProfile: UpdateProductPriceRequest) => {
-    console.log("Editing price profile with id:", newProfile);
     try {
       const result = await updatePriceProfile(newProfile);
       console.log("Updated:", result);
@@ -82,27 +82,20 @@ export default function MainContent() {
     }
   }
 
-  useEffect(() => {
-    console.log("Sa!!!!!!!!!!!!!!!!d:", savedPriceProfiles);
-  },[savedPriceProfiles])
-
   const handlePriceProfileSave = async () => { 
     try {
       if (!priceProfileOptions) throw new Error("Price profile options not set");
-      
       const result = await createPricingProfile({
       adjustmentMode: priceProfileOptions.adjustmentMode,
       adjustmentIncrementMode: priceProfileOptions.adjustmentIncrementMode,
       adjustmentValue: priceProfileOptions.adjustmentValue,
-
       productIds: selectedProducts.map((p) => p.id),
       customerGroupIds: selectedCustomerGroups.map((g) => g.id),
       customerIds: selectedCustomer.map((c) => c.id),
-
-      priority: 0,
+      allProducts: productScope === "all",
+      priority: priceProfileOptions.priority ?? 0,
     });
 
-    console.log("Saved:", result);
     setSavedPriceProfiles(result);
     setProductFilters(defaultProductFilters);
     setSelectedProducts([]);

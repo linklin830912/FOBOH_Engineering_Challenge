@@ -28,7 +28,13 @@ export default function PriceProfileSectionAccordion({ products,filters, pricePr
   const [productScope, setProductScope] = useState<ProductScope>("multiple");
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer[]>([]);
-  const [priceProfileOptions, setPriceProfileOptions] = useState<PriceProfileOptions | null>({adjustmentIncrementMode: priceProfile.adjustmentIncrementMode, adjustmentMode: priceProfile.adjustmentMode, adjustmentValue: priceProfile.adjustmentValue});
+  const [priceProfileOptions, setPriceProfileOptions] = useState<PriceProfileOptions | null>({
+    adjustmentIncrementMode: priceProfile.adjustmentIncrementMode,
+    adjustmentMode: priceProfile.adjustmentMode,
+    adjustmentValue: priceProfile.adjustmentValue,
+    priority: priceProfile.priority,
+    allProducts: false
+  });
   const [selectedCustomerGroups, setSelectedCustomerGroups] = useState<CustomerGroup[]>([]);
   const [editingPriceProfile, setEditingPriceProfile] = useState<PricingProfile>(priceProfile);
   
@@ -81,8 +87,8 @@ export default function PriceProfileSectionAccordion({ products,filters, pricePr
                   productIds: selectedProducts.map((p) => p.id),
                   customerGroupIds: selectedCustomerGroups.map((g) => g.id),
                   customerIds: selectedCustomer.map((c) => c.id),
-
-                  priority: 0,
+                  priority: priceProfileOptions?.priority ?? editingPriceProfile.priority,
+                  allProducts: priceProfileOptions?.allProducts ?? editingPriceProfile.allProducts ?? false,
                 })
               }
               setIsEditing(prev => !prev);

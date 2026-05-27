@@ -9,7 +9,7 @@ export type CreatePricingProfileRequest = {
   productIds: string[];
   customerGroupIds: string[];
   customerIds: string[];
-
+    allProducts: boolean;
   priority: number;
 };
 

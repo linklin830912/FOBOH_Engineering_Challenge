@@ -8,6 +8,7 @@ import {
 import { CustomerGroup } from "../model/Customer";
 import { PricingProfile } from "../model/PricingProfile";
 import { calculatePrice, resolvePrice } from "../services/pricing.service";
+import { createPricingProfile, deletePricingProfile } from "./helper";
 
 const router = Router();
 
@@ -81,9 +82,10 @@ router.post("/pricing-profile", (req, res) => {
     customerGroupIds = [],
     customerIds = [],
     priority,
+    allProducts,
+    name,
   } = req.body;
-
-  // 1. VALIDATION
+  // Validation
   if (
     !adjustmentMode ||
     !adjustmentIncrementMode ||
@@ -96,65 +98,29 @@ router.post("/pricing-profile", (req, res) => {
     });
   }
 
-  let finalCustomerGroupIds = [...customerGroupIds];
-
-  // 2. CREATE CUSTOMER GROUP (IF customerIds EXIST)
-  if (customerIds.length > 0) {
-    const newGroup: CustomerGroup = {
-      id: `CG_${Date.now()}`,
-      name: `Auto Group ${MOCK_CUSTOMER_GROUPS_STORE.length + 1}`,
-      customerIds,
-      type: "auto",
-      priceProfileIds: [],
-    };
-
-    MOCK_CUSTOMER_GROUPS_STORE.push(newGroup);
-
-    customerIds.forEach((customerId: string) => {
-      const customer = MOCK_CUSTOMERS_STORE.find((c) => c.id === customerId);
-      if (customer) {
-        customer.groupIds ??= [];
-        if (!customer.groupIds.includes(newGroup.id)) {
-          customer.groupIds.push(newGroup.id);
-        }
-      }
-    });
-
-    finalCustomerGroupIds.push(newGroup.id);
-  }
-
-  // 3. CREATE PRICING PROFILE
-  const newProfile = {
-    id: `PP_${Date.now()}`,
-    name: `Price Profile ${MOCK_PRICING_PROFILES_STORE.length + 1}`,
+  const newProfile = createPricingProfile({
     adjustmentMode,
     adjustmentIncrementMode,
     adjustmentValue,
     productIds,
-    customerGroupIds: finalCustomerGroupIds,
-    priority: priority ?? 0,
-    createdAt: new Date().toISOString(),
-  };
-
-  MOCK_PRICING_PROFILES_STORE.push(newProfile);
-
-  // 4. SYNC BACK → CustomerGroup.priceProfileIds
-  finalCustomerGroupIds.forEach((groupId: string) => {
-    const group = MOCK_CUSTOMER_GROUPS_STORE.find((g) => g.id === groupId);
-    if (group) {
-      group.priceProfileIds ??= [];
-      if (!group.priceProfileIds.includes(newProfile.id)) {
-        group.priceProfileIds.push(newProfile.id);
-      }
-    }
+    customerGroupIds,
+    customerIds,
+    priority,
+    allProducts,
+    name,
   });
 
-  return res.json({
+  return res.status(201).json({
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
+    debug: {
+      result: newProfile,
+      customers: MOCK_CUSTOMERS_STORE,
+      customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
+      pricingProfiles: MOCK_PRICING_PROFILES_STORE,
+    }
   });
 });
-
 /**
  * @swagger
  * /api/pricing-profile/match:
@@ -266,7 +232,7 @@ router.get("/pricing-profile/match", (req, res) => {
 router.delete("/pricing-profile/:id", (req, res) => {
   const { id } = req.params;
 
-  // 1. Validate id
+  // VALIDATION
   if (!id || typeof id !== "string") {
     return res.status(400).json({
       status: "error",
@@ -274,67 +240,20 @@ router.delete("/pricing-profile/:id", (req, res) => {
     });
   }
 
-  // 2. Find pricing profile
-  const profileIndex = MOCK_PRICING_PROFILES_STORE.findIndex(
-    (p) => p.id === id
-  );
+  const deletedProfile = deletePricingProfile(id);
 
-  if (profileIndex === -1) {
+  if (!deletedProfile) {
     return res.status(404).json({
       status: "error",
       message: "Pricing profile not found",
     });
   }
 
-  const [deletedProfile] = MOCK_PRICING_PROFILES_STORE.splice(profileIndex, 1);
-
-  const relatedGroupIds = deletedProfile.customerGroupIds || [];
-
-  const groupsToDelete: string[] = [];
-
-  // 3. Update groups (NO reassignment, safe mutation)
-  MOCK_CUSTOMER_GROUPS_STORE.forEach((group) => {
-    if (!relatedGroupIds.includes(group.id)) return;
-
-    // remove pricing profile link
-    group.priceProfileIds = (group.priceProfileIds || []).filter(
-      (pid: string) => pid !== id
-    );
-
-    // ONLY for auto groups → cascade + mark for deletion
-    if (group.type === "auto") {
-      groupsToDelete.push(group.id);
-
-      group.customerIds.forEach((customerId: string) => {
-        const customer = MOCK_CUSTOMERS_STORE.find(
-          (c) => c.id === customerId
-        );
-
-        if (!customer) return;
-
-        customer.groupIds = (customer.groupIds || []).filter(
-          (gid: string) => gid !== group.id
-        );
-      });
-    }
-  });
-
-  // 4. Remove auto groups from store
-  groupsToDelete.forEach((groupId) => {
-    const index = MOCK_CUSTOMER_GROUPS_STORE.findIndex(
-      (g) => g.id === groupId
-    );
-
-    if (index !== -1) {
-      MOCK_CUSTOMER_GROUPS_STORE.splice(index, 1);
-    }
-  });
-
-  // 5. Response
   return res.status(200).json({
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
     debug: {
+      result: deletedProfile,
       customers: MOCK_CUSTOMERS_STORE,
       customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
       pricingProfiles: MOCK_PRICING_PROFILES_STORE,
@@ -446,30 +365,17 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *                   example: Pricing profile not found
  */
 router.put("/pricing-profile", (req, res) => {
-  const {
-    id,
-    adjustmentMode,
-    adjustmentIncrementMode,
-    adjustmentValue,
-    productIds,
-    customerGroupIds = [],
-    customerIds = [],
-    priority,
-    isActive,
-    name,
-  } = req.body;
+  const { id } = req.body;
 
-  // 1. Validate id
-  if (!id || typeof id !== "string") {
+  if (!id) {
     return res.status(400).json({
       status: "error",
       message: "Pricing profile id is required",
     });
   }
 
-  // 2. Find existing pricing profile
   const existingProfile = MOCK_PRICING_PROFILES_STORE.find(
-    (profile) => profile.id === id
+    (p) => p.id === id
   );
 
   if (!existingProfile) {
@@ -479,113 +385,18 @@ router.put("/pricing-profile", (req, res) => {
     });
   }
 
-  // 3. Determine customer groups diff
-  const oldGroupIds = existingProfile.customerGroupIds || [];
+  // preserve createdAt
+  const createdAt = existingProfile.createdAt;
 
-  const groupsToRemove = oldGroupIds.filter(
-    (groupId:string) => !customerGroupIds.includes(groupId)
-  );
+  // remove old state
+  deletePricingProfile(id);
 
-  const groupsToAdd = customerGroupIds.filter(
-    (groupId: string) => !oldGroupIds.includes(groupId)
-  );
-
-  // 4. Remove old relations
-  groupsToRemove.forEach((groupId:string) => {
-    const group = MOCK_CUSTOMER_GROUPS_STORE.find(
-      (g) => g.id === groupId
-    );
-
-    if (!group) return;
-
-    group.priceProfileIds = (group.priceProfileIds || []).filter(
-      (profileId:string) => profileId !== id
-    );
-
-    // if auto group → remove group from customers
-    if (group.type === "auto") {
-      group.customerIds.forEach((customerId:string) => {
-        const customer = MOCK_CUSTOMERS_STORE.find(
-          (c) => c.id === customerId
-        );
-
-        if (!customer) return;
-
-        customer.groupIds = (customer.groupIds || []).filter(
-          (gid:string) => gid !== group.id
-        );
-      });
-    }
+  // rebuild fresh state
+  const newProfile = createPricingProfile({
+    ...req.body,
+    id,
+    createdAt,
   });
-
-  // 5. Add new relations
-  groupsToAdd.forEach((groupId: string) => {
-    const group = MOCK_CUSTOMER_GROUPS_STORE.find(
-      (g) => g.id === groupId
-    );
-
-    if (!group) return;
-
-    const existingIds = group.priceProfileIds || [];
-
-    if (!existingIds.includes(id)) {
-      group.priceProfileIds = [...existingIds, id];
-    }
-
-    // if auto group → add group to customers
-    if (group.type === "auto") {
-      group.customerIds.forEach((customerId:string) => {
-        const customer = MOCK_CUSTOMERS_STORE.find(
-          (c) => c.id === customerId
-        );
-
-        if (!customer) return;
-
-        const existingGroupIds = customer.groupIds || [];
-
-        if (!existingGroupIds.includes(group.id)) {
-          customer.groupIds = [
-            ...existingGroupIds,
-            group.id,
-          ];
-        }
-      });
-    }
-  });
-
-  // 6. Update changed fields only
-  if (adjustmentMode !== undefined) {
-    existingProfile.adjustmentMode = adjustmentMode;
-  }
-
-  if (adjustmentIncrementMode !== undefined) {
-    existingProfile.adjustmentIncrementMode =
-      adjustmentIncrementMode;
-  }
-
-  if (adjustmentValue !== undefined) {
-    existingProfile.adjustmentValue = adjustmentValue;
-  }
-
-  if (productIds !== undefined) {
-    existingProfile.productIds = productIds;
-  }
-
-  if (priority !== undefined) {
-    existingProfile.priority = priority;
-  }
-
-  if (isActive !== undefined) {
-    existingProfile.isActive = isActive;
-  }
-
-  if (name !== undefined) {
-    existingProfile.name = name;
-  }
-
-  existingProfile.customerGroupIds = customerGroupIds;
-
-  existingProfile.updatedAt = new Date();
 
   return res.status(200).json({
     status: "ok",
