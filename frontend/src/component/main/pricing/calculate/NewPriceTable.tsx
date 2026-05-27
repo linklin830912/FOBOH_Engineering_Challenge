@@ -156,9 +156,10 @@ export default function NewPriceTable({
                                         100,
                                         Math.max(0, value)
                                     );
-                                }else if(adjustmentMode === "fixed" && adjustmentIncrementMode === "decrease") {
-                                    value = Math.min(row.basedOnPrice, value);
                                 }
+                                // else if (adjustmentMode === "fixed" && adjustmentIncrementMode === "decrease") {
+                                //     value = Math.min(row.basedOnPrice, value);
+                                // }
                         onAdjustmentChange(row.id, value);                        
                     }
                     }

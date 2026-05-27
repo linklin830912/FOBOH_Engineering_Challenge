@@ -33,7 +33,8 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
   const onAdjustmentChange = (id: string, value: number) => {
     setProductPriceRows((prevRows) =>
       prevRows.map((row) =>
-        row.id === id ? { ...row, adjustment: value, newPrice: calculateNewPrice(row, value) } : row
+        // row.id === id ? { ...row, adjustment: value, newPrice: calculateNewPrice(row, value) } : row
+        {return { ...row, adjustment: value, newPrice: calculateNewPrice(row, value) }}
       )
     );
   };
