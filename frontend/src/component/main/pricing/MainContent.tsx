@@ -4,11 +4,16 @@ import PriceProfileSectionAccordion from "./PriceProfileSectionAccordion";
 import SetupPriceProfileSectionAccordion from "./setup/SetupPriceProfileSectionAccordion";
 import { FilterOptions, ProductFilters } from "./setup/ProductSearchSection";
 import { getProducts } from "../../../api/getProducts";
-import { Product } from "../../../type/Pricing";
+import { Customer, CustomerGroup, Product } from "../../../type/Pricing";
 import { getProductFilters } from "../../../api/getProductFilters";
 import CalculatePriceProfileSectionAccordion from "./calculate/CaculatePriceProfileSectionAccordion";
+import SectionActions from "../shared/SectionActions";
+import CustomerPriceProfileSectionAccordion from "./customer/CustomerPriceProfileSectionAccordion";
+import ReviewPriceProfileSectionAccordion from "./review/ReviewPriceProfileSectionAccordion";
 
+const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
 export default function MainContent() {
+  const [currentStep, setCurrentStep] = useState<number>(0);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [productFilters, setProductFilters] = useState<ProductFilters>({
@@ -20,6 +25,23 @@ export default function MainContent() {
   });
   const [filters, setFilters] = useState<FilterOptions | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer[]>([]);
+  const handleToggleCustomer = (customer: Customer) => {
+      setSelectedCustomer((prev) =>
+          prev.map(x=>x.id).includes(customer.id)
+          ? prev.filter((x) => x.id !== customer.id)
+          : [...prev, customer]
+      );
+  };
+  const [selectedCustomerGroups, setSelectedCustomerGroups] = useState<CustomerGroup[]>([]);
+  const handleToggleCustomerGroup = (customerGroup: CustomerGroup) => {
+      setSelectedCustomerGroups((prev) =>
+          prev.map(x=>x.id).includes(customerGroup.id)
+          ? prev.filter((x) => x.id !== customerGroup.id)
+          : [...prev, customerGroup]
+      );
+  }
 
   useEffect(() => {
     async function loadFilters() {
@@ -60,17 +82,38 @@ export default function MainContent() {
 
         {/* Section 2 */}
         <div className="mt-4">
-          {filters && <SetupPriceProfileSectionAccordion
-            products={products}
-            setProductFilters={setProductFilters}
-            productFilters={productFilters}
-            filters={filters}
-            selectedProducts={selectedProducts}
-            setSelectedProducts={setSelectedProducts}
-          />}
+          {currentStep === 0 && <>
+            {filters && <SetupPriceProfileSectionAccordion
+              products={products}
+              setProductFilters={setProductFilters}
+              productFilters={productFilters}
+              filters={filters}
+              selectedProducts={selectedProducts}
+              setSelectedProducts={setSelectedProducts}
+            />}
 
-          <CalculatePriceProfileSectionAccordion selectedProducts={selectedProducts} />
-        </div>
+            <CalculatePriceProfileSectionAccordion selectedProducts={selectedProducts} />
+          </>}
+
+          {currentStep === 1 && <>
+            <CustomerPriceProfileSectionAccordion
+              selectedCustomer={selectedCustomer} onToggleCustomer={handleToggleCustomer}
+              selectedCustomerGroups={selectedCustomerGroups} onToggleCustomerGroup={handleToggleCustomerGroup} />
+          </>}
+
+          {currentStep === 2 && <>
+           <ReviewPriceProfileSectionAccordion selectedCustomer={selectedCustomer} selectedCustomerGroup={selectedCustomerGroups} selectedProducts={selectedProducts} />
+          </>}
+
+          <div className="mt-4">
+            <SectionActions backDisabled={currentStep === 0} nextDisabled={currentStep === PricingProfileSteps.length - 1}
+              onBack={() => {
+                setCurrentStep((prev) => Math.max(0, prev - 1));
+              }}
+              onNext={() => setCurrentStep((prev) => Math.min(PricingProfileSteps.length - 1, prev + 1))}
+            />
+          </div>
+        </div>        
       </div>
     </main>
   );

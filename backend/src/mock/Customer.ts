@@ -1,56 +1,72 @@
-export const MOCK_CUSTOMER_GROUPS = [
+export type Customer = {
+  id: string;
+  name: string;
+  groupIds?: string[];
+};
+
+export type CustomerGroup = {
+  id: string;
+  name: string;
+  customerIds: string[];
+};
+
+export const MOCK_CUSTOMER_GROUPS: CustomerGroup[] = [
   {
     id: "group-vip",
     name: "VIP",
+    customerIds: ["cust-001", "cust-002"],
   },
   {
     id: "group-retail",
     name: "Retail",
+    customerIds: ["cust-003", "cust-004"],
   },
   {
     id: "group-wholesale",
     name: "Wholesale",
+    customerIds: ["cust-005"],
   },
   {
     id: "group-hospitality",
     name: "Hospitality",
+    customerIds: ["cust-006", "cust-007"],
   },
 ];
 
-export const MOCK_CUSTOMERS = [
+export const MOCK_CUSTOMERS: Customer[] = [
   {
     id: "cust-001",
     name: "Harbour Fine Wines",
-    groupId: "group-vip",
+    groupIds: ["group-vip"],
   },
   {
     id: "cust-002",
     name: "Sydney Luxury Cellars",
-    groupId: "group-vip",
+    groupIds: ["group-vip"],
   },
   {
     id: "cust-003",
     name: "Bondi Bottleshop",
-    groupId: "group-retail",
+    groupIds: ["group-retail"],
   },
   {
     id: "cust-004",
     name: "City Liquor Store",
-    groupId: "group-retail",
+    groupIds: ["group-retail"],
   },
   {
     id: "cust-005",
     name: "Aussie Wine Distributors",
-    groupId: "group-wholesale",
+    groupIds: ["group-wholesale"],
   },
   {
     id: "cust-006",
     name: "Metro Hospitality Group",
-    groupId: "group-hospitality",
+    groupIds: ["group-hospitality"],
   },
   {
     id: "cust-007",
     name: "Coastal Resorts Group",
-    groupId: "group-hospitality",
+    groupIds: ["group-hospitality"],
   },
 ];

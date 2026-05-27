@@ -59,7 +59,7 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
 
       <BasedOnSelector/>
 
-      <div className="w-full flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-[#F0F0F0]">
+      <div className="w-full flex flex-col justify-center items-start gap-[6px] mt-5 pt-5 border-t border-b border-[#F0F0F0]">
         <AdjustmentModeSelector adjustmentMode={adjustmentMode} setAdjustmentMode={setAdjustmentMode} />
         <AdjustmentIncrementModeSelector value={adjustmentIncrementMode} onChange={setAdjustmentIncrementMode} />
         <AdjustedPriceInfo />

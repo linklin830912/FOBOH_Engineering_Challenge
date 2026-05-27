@@ -1,12 +1,11 @@
 export type Customer = {
   id: string;
   name: string;
-
-  groupId: string;
-  group?: CustomerGroup;
+  groupIds?: string[];
 };
 
 export type CustomerGroup = {
   id: string;
   name: string;
+  customerIds: string[];
 };
