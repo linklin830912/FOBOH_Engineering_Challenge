@@ -13,6 +13,7 @@ import ReviewPriceProfileSectionAccordion from "./review/ReviewPriceProfileSecti
 import { createPricingProfile } from "../../../api/createPricingProfile";
 import BestPricePriceProfileSectionAccordion from "./best-price/PriceProfileSectionAccordion";
 import { ProductScope } from "./setup/ProductScopeSelector";
+import { deletePricingProfile } from "../../../api/deletePricingProfile";
 
 const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
 const defaultProductFilters: ProductFilters = {
@@ -49,6 +50,15 @@ export default function MainContent() {
       setSelectedProducts([]);
     }
     setProductScope(scope);
+  }
+
+  const handlePriceProfileDelete = async(id: string) => { 
+    try {
+      const result = await deletePricingProfile(id);
+      setSavedPriceProfiles(result);
+    } catch (err) { 
+      console.error("Error deleting price profile:", err);
+    }
   }
   
   const handleToggleCustomerGroup = (customerGroup: CustomerGroup) => {
@@ -124,7 +134,7 @@ export default function MainContent() {
         {/* Section 1 */}
         <div className="mt-4">
           {savedPriceProfiles?.map((profile) => (
-            <PriceProfileSectionAccordion key={profile.id} priceProfile={profile} />
+            <PriceProfileSectionAccordion key={profile.id} priceProfile={profile} handlePriceProfileDelete={handlePriceProfileDelete} />
           ))}
         </div>
 

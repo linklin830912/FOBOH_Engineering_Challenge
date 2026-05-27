@@ -67,7 +67,9 @@ router.get("/customergroup", (req, res) => {
       (!name ||
         group.name.toLowerCase().includes((name as string).toLowerCase()))
     );
-  });
+  }).filter((group) => group.type === "custom");
+    
+    
 
   res.json({
     status: "ok",

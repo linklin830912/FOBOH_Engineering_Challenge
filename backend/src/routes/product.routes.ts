@@ -6,14 +6,14 @@ const router = Router();
 
 /**
  * @swagger
- * /api/product/filters:
+ * /api/product-filters:
  *   get:
- *     summary: Get all product filters (categories, segments, brands)
+ *     summary: Get all filters values for categories, segments, brands
  *     responses:
  *       200:
  *         description: Filter options
  */
-router.get("/product/filters", (_req, res) => {
+router.get("/product-filters", (_req, res) => {
   res.json({
     status: "ok",
     value: { categories, segments, brands },

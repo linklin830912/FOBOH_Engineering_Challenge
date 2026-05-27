@@ -104,6 +104,7 @@ router.post("/pricing-profile", (req, res) => {
       id: `CG_${Date.now()}`,
       name: `Auto Group ${MOCK_CUSTOMER_GROUPS_STORE.length + 1}`,
       customerIds,
+      type: "auto",
       priceProfileIds: [],
     };
 
@@ -203,6 +204,141 @@ router.get("/pricing-profile/match", (req, res) => {
   return res.json({
     status: "ok",
     value: result,
+  });
+});
+
+
+/**
+ * @swagger
+ * /api/pricing-profile/:id:
+ *   delete:
+ *     summary: Delete a pricing profile by ID
+ *     tags: [Pricing Profile]
+ *     description: Removes a pricing profile from the in-memory store by its unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: UUID of the pricing profile to delete
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Pricing profile deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 value:
+ *                   $ref: '#/components/schemas/PricingProfile'
+ *       400:
+ *         description: Invalid ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Invalid id format. Expected UUID
+ *       404:
+ *         description: Pricing profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Pricing profile not found
+ */
+router.delete("/pricing-profile/:id", (req, res) => {
+  const { id } = req.params;
+
+  // 1. Validate id
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid or missing pricing profile id",
+    });
+  }
+
+  // 2. Find pricing profile
+  const profileIndex = MOCK_PRICING_PROFILES_STORE.findIndex(
+    (p) => p.id === id
+  );
+
+  if (profileIndex === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: "Pricing profile not found",
+    });
+  }
+
+  const [deletedProfile] = MOCK_PRICING_PROFILES_STORE.splice(profileIndex, 1);
+
+  const relatedGroupIds = deletedProfile.customerGroupIds || [];
+
+  const groupsToDelete: string[] = [];
+
+  // 3. Update groups (NO reassignment, safe mutation)
+  MOCK_CUSTOMER_GROUPS_STORE.forEach((group) => {
+    if (!relatedGroupIds.includes(group.id)) return;
+
+    // remove pricing profile link
+    group.priceProfileIds = (group.priceProfileIds || []).filter(
+      (pid: string) => pid !== id
+    );
+
+    // ONLY for auto groups → cascade + mark for deletion
+    if (group.type === "auto") {
+      groupsToDelete.push(group.id);
+
+      group.customerIds.forEach((customerId: string) => {
+        const customer = MOCK_CUSTOMERS_STORE.find(
+          (c) => c.id === customerId
+        );
+
+        if (!customer) return;
+
+        customer.groupIds = (customer.groupIds || []).filter(
+          (gid: string) => gid !== group.id
+        );
+      });
+    }
+  });
+
+  // 4. Remove auto groups from store
+  groupsToDelete.forEach((groupId) => {
+    const index = MOCK_CUSTOMER_GROUPS_STORE.findIndex(
+      (g) => g.id === groupId
+    );
+
+    if (index !== -1) {
+      MOCK_CUSTOMER_GROUPS_STORE.splice(index, 1);
+    }
+  });
+
+  // 5. Response
+  return res.status(200).json({
+    status: "ok",
+    value: MOCK_PRICING_PROFILES_STORE,
+    debug: {
+      customers: MOCK_CUSTOMERS_STORE,
+      customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
+      pricingProfiles: MOCK_PRICING_PROFILES_STORE,
+    },
   });
 });
 

@@ -5,21 +5,25 @@ export const MOCK_CUSTOMER_GROUPS: CustomerGroup[] = [
     id: "group-vip",
     name: "VIP",
     customerIds: ["cust-001", "cust-002"],
+    type: "custom",
   },
   {
     id: "group-retail",
     name: "Retail",
     customerIds: ["cust-003", "cust-004"],
+    type: "custom",
   },
   {
     id: "group-wholesale",
     name: "Wholesale",
     customerIds: ["cust-005"],
+    type: "custom",
   },
   {
     id: "group-hospitality",
     name: "Hospitality",
     customerIds: ["cust-006", "cust-007"],
+    type: "custom",
   },
 ];
 

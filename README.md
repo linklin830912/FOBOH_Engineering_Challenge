@@ -1,147 +1,81 @@
 # FOBOH Engineering Challenge
 
-Monorepo with a **Node.js + TypeScript** API (`/backend`) and a **React + TypeScript** UI (`/frontend`), orchestrated with Docker Compose.
+# Frontend README
+Frontend application for the FOBOH Engineering Challenge.
+Built with React, TypeScript, Tailwind CSS, and Vite.
 
-## Run with Docker
-
-From the repository root:
-
-```bash
-docker compose up --build
+## Setup
 ```
-
-- Frontend: http://localhost:3000
-- Backend API (direct): http://localhost:3001/api/health
-
-The frontend nginx container proxies `/api/*` to the backend service.
-
-## Local development (without Docker)
-
-**Backend**
-
-```bash
-cd backend
+git clone https://github.com/linklin830912/FOBOH_Engineering_Challenge.git
+cd FOBOH_Engineering_Challenge/frontend
 npm install
 npm run dev
 ```
+## Run on
+http://localhost:5173
 
-**Frontend** (in another terminal)
+## Tech Stack
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Lucide React
+- Axios
+
+---
+
+## Project Structure
 
 ```bash
-cd frontend
+src/
+├── api/                # API request functions
+├── components/         # Shared reusable UI components
+├── pages/              # Route pages
+├── layouts/            # Layout components
+├── types/              # Shared TypeScript types
+├── mocks/              # Mock data
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions
+└── main.tsx
+```
+
+# Backend README
+Backend API service for the FOBOH Engineering Challenge.
+Built with Node.js, Express, TypeScript, and Prisma-style relational architecture.
+
+## Setup
+```
+git clone https://github.com/linklin830912/FOBOH_Engineering_Challenge.git
+cd FOBOH_Engineering_Challenge/frontend
 npm install
 npm run dev
 ```
+## Run on
+http://localhost:5173
 
-Vite dev server runs at http://localhost:5173 and proxies `/api` to the backend on port 3001.
+## Tech Stack
 
-## Project layout
+- Node.js
+- Express.js
+- TypeScript
+- Prisma schema design
+- REST API architecture
+- Swagger/OpenAPI
+- In-memory mock database
 
-```
-backend/     Express API (TypeScript)
-frontend/    React app (Vite + TypeScript)
-docker-compose.yml
-```
+---
 
-# Design Schema
+## Project Structure
 
-```
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-# ----------------------
-# ENUMS
-# ----------------------
-
-enum AdjustmentType {
-  FIXED
-  PERCENTAGE
-}
-
-enum AdjustmentDirection {
-  INCREASE
-  DECREASE
-}
-
-# ----------------------
-# CORE MODELS
-# ----------------------
-
-model Product {
-  id          String   @id @default(uuid())
-  title       String
-  sku         String   @unique
-  brand       String
-  subCategory String
-  segment     String
-  price       Float
-
-  pricingProfiles PricingProfileProduct[]
-}
-
-model Customer {
-  id        String   @id @default(uuid())
-  name      String
-
-  groupId   String
-  group     CustomerGroup @relation(fields: [groupId], references: [id])
-
-  pricingProfiles PricingProfileCustomer[]
-}
-
-model CustomerGroup {
-  id        String   @id @default(uuid())
-  name      String   @unique
-
-  customers Customer[]
-}
-
-model PricingProfile {
-  id        String   @id @default(uuid())
-  name      String
-
-  adjustmentType     AdjustmentType
-  direction          AdjustmentDirection
-  value              Float
-
-  priority   Int      @default(0)
-  isActive   Boolean  @default(true)
-
-  products   PricingProfileProduct[]
-  customers  PricingProfileCustomer[]
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-# ----------------------
-# JOIN TABLES (M2M)
-# ----------------------
-
-model PricingProfileProduct {
-  pricingProfileId String
-  productId        String
-
-  pricingProfile PricingProfile @relation(fields: [pricingProfileId], references: [id])
-  product        Product        @relation(fields: [productId], references: [id])
-
-  @@id([pricingProfileId, productId])
-}
-
-model PricingProfileCustomer {
-  pricingProfileId String
-  customerId       String
-
-  pricingProfile PricingProfile @relation(fields: [pricingProfileId], references: [id])
-  customer       Customer       @relation(fields: [customerId], references: [id])
-
-  @@id([pricingProfileId, customerId])
-}
-
-```
+```bash
+src/
+├── controllers/        # Route controllers
+├── routes/             # Express route definitions
+├── services/           # Business logic
+├── data/               # Mock in-memory data
+├── types/              # Shared TypeScript types
+├── utils/              # Utility helpers
+├── swagger/            # Swagger configuration
+├── middleware/         # Express middleware
+└── server.ts
