@@ -1,11 +1,5 @@
 import React from "react";
 
-// type BasedOn = "price" | "";
-
-// type Props = {
-//   value: BasedOn;
-//   onChange: (value: BasedOn) => void;
-// };
 
 export default function BasedOnSelector() {
   return (

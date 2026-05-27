@@ -12,6 +12,7 @@ import CustomerPriceProfileSectionAccordion from "./customer/CustomerPriceProfil
 import ReviewPriceProfileSectionAccordion from "./review/ReviewPriceProfileSectionAccordion";
 import { createPricingProfile } from "../../../api/createPricingProfile";
 import BestPricePriceProfileSectionAccordion from "./best-price/PriceProfileSectionAccordion";
+import { ProductScope } from "./setup/ProductScopeSelector";
 
 const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
 const defaultProductFilters: ProductFilters = {
@@ -26,6 +27,7 @@ export default function MainContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productFilters, setProductFilters] = useState<ProductFilters>(defaultProductFilters);
   const [filters, setFilters] = useState<FilterOptions | null>(null);
+  const [productScope, setProductScope] = useState<ProductScope>("multiple");
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer[]>([]);
   const [priceProfileOptions, setPriceProfileOptions] = useState<PriceProfileOptions | null>(null);
@@ -39,6 +41,15 @@ export default function MainContent() {
           : [...prev, customer]
       );
   };
+
+  const handleProductScopeChange = (scope: ProductScope) => {
+    if (scope === "all") {
+      setSelectedProducts(products);
+    } else {
+      setSelectedProducts([]);
+    }
+    setProductScope(scope);
+  }
   
   const handleToggleCustomerGroup = (customerGroup: CustomerGroup) => {
       setSelectedCustomerGroups((prev) =>
@@ -61,7 +72,7 @@ export default function MainContent() {
       customerGroupIds: selectedCustomerGroups.map((g) => g.id),
       customerIds: selectedCustomer.map((c) => c.id),
 
-      priority: 1,
+      priority: 0,
     });
 
     console.log("Saved:", result);
@@ -112,7 +123,7 @@ export default function MainContent() {
 
         {/* Section 1 */}
         <div className="mt-4">
-          {savedPriceProfiles.map((profile) => (
+          {savedPriceProfiles?.map((profile) => (
             <PriceProfileSectionAccordion key={profile.id} priceProfile={profile} />
           ))}
         </div>
@@ -121,6 +132,7 @@ export default function MainContent() {
         <div className="mt-4">
           {currentStep === 0 && <>
             {filters && <SetupPriceProfileSectionAccordion
+              productScope={productScope} setProductScope={handleProductScopeChange}
               products={products}
               setProductFilters={setProductFilters}
               productFilters={productFilters}

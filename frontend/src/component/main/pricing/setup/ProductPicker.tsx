@@ -2,26 +2,32 @@ import React, { useState, useMemo } from "react";
 import ProductSelectList from "./ProductSelectList";
 import SelectAllControls from "./SelectAllControls";
 import { Product } from "../../../../type/Pricing";
+import { ProductScope } from "./ProductScopeSelector";
 
 
 interface ProductPickerProps {
+    productScope: ProductScope;
     products: Product[];
     profileName?: string;
     selectedProducts: Product[];
     setSelectedProducts: (products: Product[]) => void;
 }
 
-export default function ProductPicker({ products, profileName, selectedProducts, setSelectedProducts }: ProductPickerProps) {
+export default function ProductPicker({ products, productScope, profileName, selectedProducts, setSelectedProducts }: ProductPickerProps) {
 
   const allSelected = selectedProducts.length === products.length;
 
   const handleToggle = (product: Product) => {
+    if(productScope === "one") {
+      setSelectedProducts([product]);
+      return;
+    }
   const next = selectedProducts.includes(product)
     ? selectedProducts.filter((p) => p !== product)
     : [...selectedProducts, product];
 
     setSelectedProducts(next);
-    };
+  };
 
   const handleSelectAll = () => {
     setSelectedProducts(products);
@@ -35,11 +41,11 @@ export default function ProductPicker({ products, profileName, selectedProducts,
     <div className="flex flex-col gap-4">
 
       {/* Select All / Deselect All */}
-      <SelectAllControls
+      {productScope!=="one"&& <SelectAllControls
         allSelected={allSelected}
         onSelectAll={handleSelectAll}
         onDeselectAll={handleDeselectAll}
-      />
+      />}
 
       {/* Product List */}
       <ProductSelectList
@@ -50,7 +56,7 @@ export default function ProductPicker({ products, profileName, selectedProducts,
 
       {/* Debug */}
       <div className="text-sm text-[#637381]">
-        You’ve selected {selectedProducts.length} Products, these will be added to the {profileName || "Price Profile"}.
+        You've selected {selectedProducts.length} Products, these will be added to the {profileName || "Price Profile"}.
       </div>
 
     </div>

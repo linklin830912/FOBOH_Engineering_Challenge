@@ -15,7 +15,7 @@ export type PricingProfile = {
   isActive: boolean;
 
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 };
 
 export type Product = {

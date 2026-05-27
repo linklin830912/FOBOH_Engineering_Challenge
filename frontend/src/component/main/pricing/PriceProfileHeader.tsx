@@ -19,12 +19,6 @@ export default function PriceProfileHeader() {
           Setup your pricing profile, select products and assign customers
         </p>
       </div>
-
-      {/* Right */}
-      <button className="flex items-center gap-2 rounded-xl bg-[#147D73] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-        <Plus size={18} />
-        Add New
-      </button>
     </div>
   );
 }

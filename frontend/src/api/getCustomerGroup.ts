@@ -10,7 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL;export async function getCustomerGr
       }
       console.log("Fetching customer groups with params:", params.toString());
       const response = await fetch(
-        `${API_URL}/customergroup?${params.toString()}`
+        `${API_URL}/api/customergroup?${params.toString()}`
       );
 
         const data = await response.json();

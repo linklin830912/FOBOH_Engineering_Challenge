@@ -11,7 +11,7 @@ export async function getCustomer(name?: string, id?: string) {
       }
       console.log("Fetching customers with params:", params.toString());
       const response = await fetch(
-        `${API_URL}/customer?${params.toString()}`
+        `${API_URL}/api/customer?${params.toString()}`
       );
 
         const data = await response.json();

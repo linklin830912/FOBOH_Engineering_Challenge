@@ -14,7 +14,7 @@ export async function getPricingProfileMatch(
   params.append("productId", query.productId);
 
   const response = await fetch(
-    `${API_URL}/pricing-profile/match?${params.toString()}`
+    `${API_URL}/api/pricing-profile/match?${params.toString()}`
   );
 
   const data = await response.json();

@@ -15,13 +15,12 @@ export default function BestPricePriceProfileSectionAccordion() {
 
       setLoading(true);
 
-      const res = await getPricingProfileMatch({
+      const result = await getPricingProfileMatch({
         customerId,
         productId,
       });
 
-      setResult(res);
-      console.log("Best price match result:", res);
+      setResult(result);
     } catch (error) {
       console.error("Error tracking price match:", error);
     } finally {
@@ -70,9 +69,22 @@ export default function BestPricePriceProfileSectionAccordion() {
 
       {/* Result */}
       <div className="text-sm text-[#637381]">
-        Best Price for{" "}
+        For Customer{" "}
         <span className="font-medium text-[#212B36]">
-          {result?.data?.productId || "-"}
+          {result?.customer.name || "-"}
+        </span>
+        {" "}
+        best Price for{" "}
+        <span className="font-medium text-[#212B36]">
+          {result?.product.title || "-"}
+        </span>
+        {" "}is{" "}
+        <span className="font-medium text-[#212B36]">
+          {result?.newPrice ? `$${result.newPrice}` : "$0.00"}
+        </span>
+        {" "}using{" "}
+        <span className="font-medium text-[#212B36]">
+          {result?.bestMatch?.name || "-"}
         </span>
       </div>
 

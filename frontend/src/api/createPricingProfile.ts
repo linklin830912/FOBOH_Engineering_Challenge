@@ -1,10 +1,9 @@
 import { PricingProfileRequest } from "../type/Api";
+import { PricingProfile } from "../type/Pricing";
 
 const API_URL = import.meta.env.VITE_API_URL;
-export async function createPricingProfile(
-  payload: PricingProfileRequest
-) {
-  const response = await fetch(`${API_URL}/pricing-profile`, {
+export async function createPricingProfile(payload: PricingProfileRequest): Promise<PricingProfile[]> {
+  const response = await fetch(`${API_URL}/api/pricing-profile`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -17,6 +16,6 @@ export async function createPricingProfile(
   if (!response.ok) {
     throw new Error(data?.message || "Failed to create pricing profile");
   }
-console.log("DEBUG", data.debug);
-  return data.data;
+
+  return data.value;
 }
