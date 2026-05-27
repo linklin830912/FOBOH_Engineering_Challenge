@@ -342,4 +342,260 @@ router.delete("/pricing-profile/:id", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /pricing-profile:
+ *   put:
+ *     summary: Update a pricing profile
+ *     tags: [Pricing Profile]
+ *     description: >
+ *       Updates an existing pricing profile and synchronizes related customer group relationships.
+ *       Only changed fields are overwritten.
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "pricing-profile-1"
+ *
+ *               name:
+ *                 type: string
+ *                 example: "VIP Discount"
+ *
+ *               adjustmentMode:
+ *                 type: string
+ *                 example: "FIXED"
+ *
+ *               adjustmentIncrementMode:
+ *                 type: string
+ *                 example: "INCREASE"
+ *
+ *               adjustmentValue:
+ *                 type: number
+ *                 example: 10
+ *
+ *               productIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *
+ *               customerGroupIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *
+ *               priority:
+ *                 type: number
+ *                 example: 1
+ *
+ *               isActive:
+ *                 type: boolean
+ *                 example: true
+ *
+ *     responses:
+ *       200:
+ *         description: Pricing profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *
+ *                 value:
+ *                   $ref: '#/components/schemas/PricingProfile'
+ *
+ *       400:
+ *         description: Invalid request payload
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *
+ *                 message:
+ *                   type: string
+ *                   example: Pricing profile id is required
+ *
+ *       404:
+ *         description: Pricing profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *
+ *                 message:
+ *                   type: string
+ *                   example: Pricing profile not found
+ */
+router.put("/pricing-profile", (req, res) => {
+  const {
+    id,
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds = [],
+    customerIds = [],
+    priority,
+    isActive,
+    name,
+  } = req.body;
+
+  // 1. Validate id
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({
+      status: "error",
+      message: "Pricing profile id is required",
+    });
+  }
+
+  // 2. Find existing pricing profile
+  const existingProfile = MOCK_PRICING_PROFILES_STORE.find(
+    (profile) => profile.id === id
+  );
+
+  if (!existingProfile) {
+    return res.status(404).json({
+      status: "error",
+      message: "Pricing profile not found",
+    });
+  }
+
+  // 3. Determine customer groups diff
+  const oldGroupIds = existingProfile.customerGroupIds || [];
+
+  const groupsToRemove = oldGroupIds.filter(
+    (groupId:string) => !customerGroupIds.includes(groupId)
+  );
+
+  const groupsToAdd = customerGroupIds.filter(
+    (groupId: string) => !oldGroupIds.includes(groupId)
+  );
+
+  // 4. Remove old relations
+  groupsToRemove.forEach((groupId:string) => {
+    const group = MOCK_CUSTOMER_GROUPS_STORE.find(
+      (g) => g.id === groupId
+    );
+
+    if (!group) return;
+
+    group.priceProfileIds = (group.priceProfileIds || []).filter(
+      (profileId:string) => profileId !== id
+    );
+
+    // if auto group → remove group from customers
+    if (group.type === "auto") {
+      group.customerIds.forEach((customerId:string) => {
+        const customer = MOCK_CUSTOMERS_STORE.find(
+          (c) => c.id === customerId
+        );
+
+        if (!customer) return;
+
+        customer.groupIds = (customer.groupIds || []).filter(
+          (gid:string) => gid !== group.id
+        );
+      });
+    }
+  });
+
+  // 5. Add new relations
+  groupsToAdd.forEach((groupId: string) => {
+    const group = MOCK_CUSTOMER_GROUPS_STORE.find(
+      (g) => g.id === groupId
+    );
+
+    if (!group) return;
+
+    const existingIds = group.priceProfileIds || [];
+
+    if (!existingIds.includes(id)) {
+      group.priceProfileIds = [...existingIds, id];
+    }
+
+    // if auto group → add group to customers
+    if (group.type === "auto") {
+      group.customerIds.forEach((customerId:string) => {
+        const customer = MOCK_CUSTOMERS_STORE.find(
+          (c) => c.id === customerId
+        );
+
+        if (!customer) return;
+
+        const existingGroupIds = customer.groupIds || [];
+
+        if (!existingGroupIds.includes(group.id)) {
+          customer.groupIds = [
+            ...existingGroupIds,
+            group.id,
+          ];
+        }
+      });
+    }
+  });
+
+  // 6. Update changed fields only
+  if (adjustmentMode !== undefined) {
+    existingProfile.adjustmentMode = adjustmentMode;
+  }
+
+  if (adjustmentIncrementMode !== undefined) {
+    existingProfile.adjustmentIncrementMode =
+      adjustmentIncrementMode;
+  }
+
+  if (adjustmentValue !== undefined) {
+    existingProfile.adjustmentValue = adjustmentValue;
+  }
+
+  if (productIds !== undefined) {
+    existingProfile.productIds = productIds;
+  }
+
+  if (priority !== undefined) {
+    existingProfile.priority = priority;
+  }
+
+  if (isActive !== undefined) {
+    existingProfile.isActive = isActive;
+  }
+
+  if (name !== undefined) {
+    existingProfile.name = name;
+  }
+
+  existingProfile.customerGroupIds = customerGroupIds;
+
+  existingProfile.updatedAt = new Date();
+
+  return res.status(200).json({
+    status: "ok",
+    value: MOCK_PRICING_PROFILES_STORE,
+    debug: {
+      customers: MOCK_CUSTOMERS_STORE,
+      customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
+      pricingProfiles: MOCK_PRICING_PROFILES_STORE,
+    }
+  });
+});
+
 export default router;

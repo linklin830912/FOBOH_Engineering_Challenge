@@ -1,10 +1,13 @@
-import { CreatePricingProfileRequest } from "../type/Api";
+import { UpdateProductPriceRequest } from "../type/Api";
 import { PricingProfile } from "../type/Pricing";
 
 const API_URL = import.meta.env.VITE_API_URL;
-export async function createPricingProfile(payload: CreatePricingProfileRequest): Promise<PricingProfile[]> {
+
+export async function updatePriceProfile(
+  payload: UpdateProductPriceRequest
+): Promise<PricingProfile[]> {
   const response = await fetch(`${API_URL}/api/pricing-profile`, {
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
@@ -14,8 +17,8 @@ export async function createPricingProfile(payload: CreatePricingProfileRequest)
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Failed to create pricing profile");
+    throw new Error(data?.message || "Failed to update pricing profile");
   }
-
+  console.log("Updated pricing profile, new list:", data.debug);
   return data.value;
 }

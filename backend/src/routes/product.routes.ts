@@ -70,4 +70,104 @@ router.get("/products", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /api/products/{id}/price:
+ *   patch:
+ *     summary: Update product price by product ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - price
+ *             properties:
+ *               price:
+ *                 type: number
+ *                 example: 120
+ *     responses:
+ *       200:
+ *         description: Product price updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 value:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: P_1
+ *                     title:
+ *                       type: string
+ *                       example: Wine A
+ *                     price:
+ *                       type: number
+ *                       example: 120
+ *       400:
+ *         description: Invalid request body or parameters
+ *       404:
+ *         description: Product not found
+ */
+router.patch("/products/:id/price", (req, res) => {
+  const { id } = req.params;
+  const { price } = req.body;
+
+  // 1. Validate input
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid product id",
+    });
+  }
+
+  if (price === undefined || typeof price !== "number" || price < 0) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid price value",
+    });
+  }
+
+  // 2. Find product
+  const productIndex = MOCK_PRODUCTS_STORE.findIndex((p) => p.id === id);
+
+  if (productIndex === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: "Product not found",
+    });
+  }
+
+  // 3. Update product (immutable-style safe update)
+  const updatedProduct = {
+    ...MOCK_PRODUCTS_STORE[productIndex],
+    price,
+  };
+
+  MOCK_PRODUCTS_STORE[productIndex] = updatedProduct;
+
+  // 4. Return response
+  return res.status(200).json({
+    status: "ok",
+    value: updatedProduct,
+    debug: {
+      allProducts: MOCK_PRODUCTS_STORE,
+    },
+  });
+});
+
+
 export default router;

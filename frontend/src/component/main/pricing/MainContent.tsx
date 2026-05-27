@@ -14,9 +14,11 @@ import { createPricingProfile } from "../../../api/createPricingProfile";
 import BestPricePriceProfileSectionAccordion from "./best-price/PriceProfileSectionAccordion";
 import { ProductScope } from "./setup/ProductScopeSelector";
 import { deletePricingProfile } from "../../../api/deletePricingProfile";
+import { UpdateProductPriceRequest } from "../../../type/Api";
+import { updatePriceProfile } from "../../../api/updatePriceProfile";
 
-const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
-const defaultProductFilters: ProductFilters = {
+export const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
+export const defaultProductFilters: ProductFilters = {
   title: "",
   sku: "",
   subCategory: "",
@@ -68,6 +70,21 @@ export default function MainContent() {
           : [...prev, customerGroup]
       );
   }
+
+  const handlePriceProfileChange = async(newProfile: UpdateProductPriceRequest) => {
+    console.log("Editing price profile with id:", newProfile);
+    try {
+      const result = await updatePriceProfile(newProfile);
+      console.log("Updated:", result);
+      setSavedPriceProfiles(result);
+    } catch (err) { 
+      console.error("Error updating price profile:", err);
+    }
+  }
+
+  useEffect(() => {
+    console.log("Sa!!!!!!!!!!!!!!!!d:", savedPriceProfiles);
+  },[savedPriceProfiles])
 
   const handlePriceProfileSave = async () => { 
     try {
@@ -134,7 +151,11 @@ export default function MainContent() {
         {/* Section 1 */}
         <div className="mt-4">
           {savedPriceProfiles?.map((profile) => (
-            <PriceProfileSectionAccordion key={profile.id} priceProfile={profile} handlePriceProfileDelete={handlePriceProfileDelete} />
+            <PriceProfileSectionAccordion key={profile.id}
+              products={products}
+              filters={filters}
+              priceProfile={profile}
+              handlePriceProfileDelete={handlePriceProfileDelete} handlePriceProfileChange={handlePriceProfileChange} />
           ))}
         </div>
 
@@ -151,7 +172,9 @@ export default function MainContent() {
               setSelectedProducts={setSelectedProducts}
             />}
 
-            <CalculatePriceProfileSectionAccordion selectedProducts={selectedProducts} setPriceProfileOptions={setPriceProfileOptions} />
+            <CalculatePriceProfileSectionAccordion
+              selectedProducts={selectedProducts}
+              setPriceProfileOptions={setPriceProfileOptions} />
           </>}
 
           {currentStep === 1 && <>

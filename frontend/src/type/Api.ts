@@ -1,7 +1,7 @@
 import { AdjustmentIncrementMode } from "../component/main/pricing/calculate/AdjustmentIncrementModeSelector";
 import { AdjustmentMode } from "../component/main/pricing/calculate/AdjustmentModeSelector";
 
-export type PricingProfileRequest = {
+export type CreatePricingProfileRequest = {
   adjustmentMode: AdjustmentMode;
   adjustmentIncrementMode: AdjustmentIncrementMode;
   adjustmentValue: number;
@@ -12,3 +12,5 @@ export type PricingProfileRequest = {
 
   priority: number;
 };
+
+export type UpdateProductPriceRequest = CreatePricingProfileRequest & {id: string};
