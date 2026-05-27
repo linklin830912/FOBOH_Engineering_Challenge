@@ -1,12 +1,12 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function getProducts(filters: {
-  name?: string;
-  sku?: string;
-  category?: string;
-  segment?: string;
-  brand?: string;
-}) {
+  export async function getProducts(filters: {
+    name?: string;
+    sku?: string;
+    category?: string;
+    segment?: string;
+    brand?: string;
+  }) {
   const params = new URLSearchParams();
 
   Object.entries(filters).forEach(([key, value]) => {

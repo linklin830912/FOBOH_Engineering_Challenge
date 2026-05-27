@@ -11,6 +11,7 @@ import SectionActions from "../shared/SectionActions";
 import CustomerPriceProfileSectionAccordion from "./customer/CustomerPriceProfileSectionAccordion";
 import ReviewPriceProfileSectionAccordion from "./review/ReviewPriceProfileSectionAccordion";
 import { createPricingProfile } from "../../../api/createPricingProfile";
+import BestPricePriceProfileSectionAccordion from "./best-price/PriceProfileSectionAccordion";
 
 const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
 const defaultProductFilters: ProductFilters = {
@@ -151,7 +152,11 @@ export default function MainContent() {
               onNext={() => setCurrentStep((prev) => Math.min(PricingProfileSteps.length - 1, prev + 1))}
             />
           </div>
-        </div>        
+        </div> 
+        
+        <div className="mt-4">
+          <BestPricePriceProfileSectionAccordion/>
+        </div>
       </div>
     </main>
   );

@@ -1,9 +1,10 @@
 import cors from "cors";
 import express from "express";
 import { brands, categories, segments } from "./mock/Product";
-import { AdjustmentIncrementMode, AdjustmentMode } from "./model/PricingProfile";
+import { AdjustmentIncrementMode, AdjustmentMode, PricingProfile } from "./model/PricingProfile";
 import { MOCK_CUSTOMER_GROUPS_STORE, MOCK_CUSTOMERS_STORE, MOCK_PRICING_PROFILES_STORE, MOCK_PRODUCTS_STORE } from "./store/db";
 import { CustomerGroup } from "./model/Customer";
+import { profile } from "node:console";
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
@@ -200,6 +201,28 @@ app.post("/pricing-profile", (req, res) => {
 });
 
 
+
+function calculatePrice(
+  basePrice: number,
+  priceProfile:PricingProfile
+) {
+  let adjustedPrice = basePrice;
+  if (priceProfile.adjustmentMode === "fixed") {
+    adjustedPrice = priceProfile.adjustmentIncrementMode === "increase"
+      ? basePrice + priceProfile.adjustmentValue
+      : basePrice - priceProfile.adjustmentValue;
+  } else if (priceProfile.adjustmentMode === "dynamic") {
+    const adjustmentAmount = (basePrice * priceProfile.adjustmentValue) / 100;
+    adjustedPrice = priceProfile.adjustmentIncrementMode === "increase"
+      ? basePrice + adjustmentAmount
+      : basePrice - adjustmentAmount;
+  }
+
+  adjustedPrice = Math.max(0, adjustedPrice);
+
+  return Number(adjustedPrice.toFixed(2));
+}
+
 app.get("/pricing-profile/match", (req, res) => {
   const { customerId, productId } = req.query;
 
@@ -259,15 +282,18 @@ app.get("/pricing-profile/match", (req, res) => {
   // 4. SORT (priority DESC → price ASC)
   // =================================================
   const sorted = matchedProfiles.sort((a, b) => {
-    const priorityDiff = (b.priority ?? 0) - (a.priority ?? 0);
+  const priorityDiff = (b.priority ?? 0) - (a.priority ?? 0);
 
-    if (priorityDiff !== 0) {
-      return priorityDiff; // higher priority first
-    }
+  if (priorityDiff !== 0) {
+    return priorityDiff; // highest priority first
+  }
 
-    // fallback: lower product price wins
-    return product.price;
-  });
+  const priceA = calculatePrice(product.price, a);
+  const priceB = calculatePrice(product.price, b);
+
+  // lowest price wins
+  return priceA - priceB;
+});
 
   // =================================================
   // 5. BEST MATCH
@@ -279,12 +305,11 @@ app.get("/pricing-profile/match", (req, res) => {
   // =================================================
   return res.json({
     status: "ok",
-    data: {
-      customerId,
-      productId,
-      productPrice: product.price,
-      matchedProfiles: sorted,
+    value: {
+      customer,
+      product,
       bestMatch,
+      newPrice: bestMatch ? calculatePrice(product.price, bestMatch) : product.price,
     },
   });
 });
