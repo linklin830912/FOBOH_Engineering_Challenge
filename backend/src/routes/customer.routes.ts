@@ -7,7 +7,7 @@ const router = Router();
  * @swagger
  * /api/customer:
  *   get:
- *     summary: Get all customers
+ *     summary: Get customer(s) with(out) id or name
  *     parameters:
  *       - in: query
  *         name: id
@@ -43,7 +43,7 @@ router.get("/customer", (req, res) => {
  * @swagger
  * /api/customergroup:
  *   get:
- *     summary: Get all customer groups
+ *     summary: Get customer group(s) with(out) id or name
  *     parameters:
  *       - in: query
  *         name: id
@@ -58,7 +58,8 @@ router.get("/customer", (req, res) => {
  *         description: List of customer groups
  */
 router.get("/customergroup", (req, res) => {
-  const { id, name } = req.query;
+
+    const { id, name } = req.query;
 
   const filteredGroups = MOCK_CUSTOMER_GROUPS_STORE.filter((group) => {
     return (
@@ -67,9 +68,7 @@ router.get("/customergroup", (req, res) => {
       (!name ||
         group.name.toLowerCase().includes((name as string).toLowerCase()))
     );
-  }).filter((group) => group.type === "custom");
-    
-    
+  }).filter((group) => group.type === "custom");    
 
   res.json({
     status: "ok",

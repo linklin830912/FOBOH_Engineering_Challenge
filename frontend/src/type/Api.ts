@@ -2,15 +2,15 @@ import { AdjustmentIncrementMode } from "../component/main/pricing/calculate/Adj
 import { AdjustmentMode } from "../component/main/pricing/calculate/AdjustmentModeSelector";
 
 export type CreatePricingProfileRequest = {
-  adjustmentMode: AdjustmentMode;
-  adjustmentIncrementMode: AdjustmentIncrementMode;
-  adjustmentValue: number;
+    adjustmentMode: AdjustmentMode;
+    adjustmentIncrementMode: AdjustmentIncrementMode;
+    adjustmentValue: number;
 
-  productIds: string[];
-  customerGroupIds: string[];
-  customerIds: string[];
+    productIds: string[];
+    customerGroupIds: string[];
+    customerIds: string[];
     allProducts: boolean;
-  priority: number;
+    priority: number;
 };
 
 export type UpdateProductPriceRequest = CreatePricingProfileRequest & {id: string};

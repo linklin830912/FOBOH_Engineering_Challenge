@@ -1,0 +1,3425 @@
+for each export default function SetupPriceProfileSectionAccordion() { 
+  return (
+    <div className="flex w-full flex-col items-start gap-[10px] rounded-lg bg-white p-[26px]">
+      {/* Header row (mock accordion header) */}
+      <div className="flex w-full items-center justify-between">
+        <h3 className="text-base font-semibold text-[#212B36]">
+          Section Title
+        </h3>
+
+        <button className="text-sm font-medium text-[#147D73]">
+          Expand
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="w-full text-sm text-[#637381]">
+        Accordion content goes here...
+      </div>
+    </div>
+  );
+}
+use the template as base:
+we need a editable(input) for title,
+editable(input) details
+with /* Frame 1000004358 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 0px;
+gap: 6px;
+
+width: 214px;
+height: 50px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+//Line here
+
+Got it — you want to turn that static accordion into a reusable editable section with:
+
+Editable title (input)
+Editable details (input / textarea style)
+A vertical “Figma-style frame” layout:
+column flex
+gap 6px
+width 214px
+height 50px
+A “line separator” element at the bottom
+
+Here’s a clean React + Tailwind version based on your structure:
+
+✅ Updated Component
+export default function SetupPriceProfileSectionAccordion() {
+  return (
+    <div className="flex w-full flex-col items-start gap-[10px] rounded-lg bg-white p-[26px]">
+      {/* Header row */}
+      <div className="flex w-full items-center justify-between">
+        {/* Editable Title */}
+        <input
+          className="text-base font-semibold text-[#212B36] outline-none bg-transparent"
+          defaultValue="Section Title"
+        />
+
+        <button className="text-sm font-medium text-[#147D73]">
+          Expand
+        </button>
+      </div>
+
+      {/* Editable Content (Figma frame style) */}
+      <div
+        className="flex flex-col justify-center items-start gap-[6px]"
+        style={{
+          width: "214px",
+          height: "50px",
+        }}
+      >
+        {/* Details input */}
+        <input
+          className="w-full text-sm text-[#637381] outline-none bg-transparent"
+          defaultValue="Accordion details..."
+        />
+
+        {/* Line */}
+        <div className="h-[1px] w-full bg-[#E5E9EF]" />
+      </div>
+    </div>
+  );
+}
+
+You want to convert that Figma frame into a Tailwind row layout for a toggle/choice: “All Products” vs “One Product”.
+
+Here’s the clean Tailwind + React version:
+
+✅ Tailwind equivalent
+📦 Frame (409×50, row, gap 26)
+<div className="flex w-[409px] h-[50px] flex-row items-start gap-[26px] p-0">
+🎯 UI: All Products / One Product selector
+
+Here’s a simple implementation using radio-style buttons:
+
+export default function ProductScopeSelector() {
+  return (
+    <div className="flex w-[409px] h-[50px] flex-row items-start gap-[26px] p-0">
+      {/* Option 1 */}
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          name="productScope"
+          value="all"
+          defaultChecked
+          className="accent-[#147D73]"
+        />
+        <span className="text-sm text-[#212B36]">All Products</span>
+      </label>
+
+      {/* Option 2 */}
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          name="productScope"
+          value="one"
+          className="accent-[#147D73]"
+        />
+        <span className="text-sm text-[#212B36]">One Product</span>
+      </label>
+    </div>
+  );
+}
+🧠 If you want it more “Figma-like / modern UI”
+
+You can upgrade to pill buttons instead of radios:
+
+<div className="flex w-[409px] h-[50px] gap-[26px]">
+  <button className="px-4 py-2 rounded-md border text-sm">
+    All Products
+  </button>
+
+  <button className="px-4 py-2 rounded-md border text-sm">
+    One Product
+  </button>
+</div>
+🚀 If you want next step
+
+I can help you turn this into:
+
+controlled state (useState)
+reusable SegmentedControl
+connected to your pricing profile schema (Prisma)
+
+Just tell me 👍
+use this css write tsx that can search on name as a search bar Product / SKU as another search bar can filter for category, segment and brand
+
+Below is a clean TypeScript React component that gives you:
+
+🔎 Search by Product name
+🔎 Search by SKU
+🎯 Filter by Category
+🎯 Filter by Segment
+🎯 Filter by Brand
+⚡ Fully controlled + reusable logic
+
+I’ll assume you pass in a product list from parent.
+
+✅ Types
+export type Product = {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  segment: string;
+  brand: string;
+};
+✅ Component
+import { useMemo, useState } from "react";
+
+export type Product = {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  segment: string;
+  brand: string;
+};
+
+type Props = {
+  products: Product[];
+  onFiltered?: (filtered: Product[]) => void;
+};
+
+export default function ProductSearchFilter({
+  products,
+  onFiltered,
+}: Props) {
+  const [nameSearch, setNameSearch] = useState("");
+  const [skuSearch, setSkuSearch] = useState("");
+  const [category, setCategory] = useState("");
+  const [segment, setSegment] = useState("");
+  const [brand, setBrand] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    const result = products.filter((p) => {
+      const matchName =
+        p.name.toLowerCase().includes(nameSearch.toLowerCase());
+
+      const matchSku =
+        p.sku.toLowerCase().includes(skuSearch.toLowerCase());
+
+      const matchCategory = category ? p.category === category : true;
+      const matchSegment = segment ? p.segment === segment : true;
+      const matchBrand = brand ? p.brand === brand : true;
+
+      return matchName && matchSku && matchCategory && matchSegment && matchBrand;
+    });
+
+    onFiltered?.(result);
+    return result;
+  }, [products, nameSearch, skuSearch, category, segment, brand, onFiltered]);
+
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      {/* Search Row */}
+      <div className="flex gap-4 flex-wrap">
+
+        {/* Product Name Search */}
+        <input
+          className="w-[240px] border rounded-md px-3 py-2 text-sm"
+          placeholder="Search Product Name"
+          value={nameSearch}
+          onChange={(e) => setNameSearch(e.target.value)}
+        />
+
+        {/* SKU Search */}
+        <input
+          className="w-[240px] border rounded-md px-3 py-2 text-sm"
+          placeholder="Search SKU"
+          value={skuSearch}
+          onChange={(e) => setSkuSearch(e.target.value)}
+        />
+
+        {/* Category Filter */}
+        <input
+          className="w-[160px] border rounded-md px-3 py-2 text-sm"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+
+        {/* Segment Filter */}
+        <input
+          className="w-[160px] border rounded-md px-3 py-2 text-sm"
+          placeholder="Segment"
+          value={segment}
+          onChange={(e) => setSegment(e.target.value)}
+        />
+
+        {/* Brand Filter */}
+        <input
+          className="w-[160px] border rounded-md px-3 py-2 text-sm"
+          placeholder="Brand"
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        />
+      </div>
+
+      {/* Results (optional preview) */}
+      <div className="text-sm text-gray-600">
+        Showing {filteredProducts.length} products
+      </div>
+    </div>
+  );
+}
+Here’s your Figma frame converted into a clean TSX + Tailwind component with dynamic state-driven text.
+
+This is your results summary bar.
+
+✅ TSX Implementation (controlled via props)
+import React from "react";
+
+type Props = {
+  resultCount: number;
+  query: string; // Product Name or SKU
+  brands: string[]; // selected brands (can be multiple)
+};
+
+export default function ResultsSummary({
+  resultCount,
+  query,
+  brands,
+}: Props) {
+  return (
+    <div className="flex flex-row items-center gap-[16px] w-[517px] h-[32px]">
+
+      {/* Showing X results */}
+      <span className="text-sm text-[#637381]">
+        Showing{" "}
+        <span className="font-medium text-[#212B36]">
+          {resultCount}
+        </span>{" "}
+        Result{resultCount !== 1 ? "s" : ""}
+      </span>
+
+      {/* Query */}
+      {query && (
+        <span className="text-sm text-[#637381]">
+          for{" "}
+          <span className="font-medium text-[#212B36]">
+            {query}
+          </span>
+        </span>
+      )}
+
+      {/* Brands */}
+      {brands?.length > 0 && (
+        <span className="text-sm text-[#637381]">
+          {brands.map((b, i) => (
+            <span key={i} className="font-medium text-[#212B36]">
+              {b}
+              {i < brands.length - 1 ? " " : ""}
+            </span>
+          ))}
+        </span>
+      )}
+    </div>
+  );
+}
+🧠 How it matches your Figma
+Frame
+flex row → flex flex-row
+align center → items-center
+gap 16px → gap-[16px]
+517×32 → w-[517px] h-[32px]
+🎯 Example usage
+<ResultsSummary
+  resultCount={6}
+  query="Product Name or SKU Code"
+  brands={["Nike", "Adidas"]}
+/>
+🚀 Better (real-world improvement)
+
+Your Figma text:
+
+Showing {6 Result} for {Product Name or SKU Code} {brand} {brand}
+
+In real apps, you should structure it like:
+
+✔ cleaner UX version
+Showing 6 results for "iPhone"
+Brands: Nike, Adidas
+
+If you want, I can upgrade this into:
+
+🔥 advanced version
+auto pluralization (“Result” vs “Results”)
+truncate long queries
+clickable filters (brand chips)
+synced with your ProductSearchFilter state
+
+Just say 👍
+/* Frame 1000004400 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 454px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 13;
+flex-grow: 0;
+text: The adjusted price will be calculated from Based on Price selected above
+Based on Price should be black and bold
+export default function AdjustedPriceInfo() {
+  return (
+    <div className="flex flex-row items-center gap-[8px] w-[454px] h-[20px]">
+      <span className="text-sm text-[#637381]">
+        The adjusted price will be calculated from{" "}
+        <span className="font-semibold text-[#212B36]">
+          Based on Price
+        </span>{" "}
+        selected above
+      </span>
+    </div>
+  );
+}
+/* selected above */
+
+width: 87px;
+height: 18px;
+
+/* Text XS/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #A26306;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+export default function AdjustedPriceInfo() {
+  return (
+    <div className="flex flex-row items-center gap-[8px] w-[454px] h-[20px]">
+      <span className="text-sm text-[#637381]">
+        The adjusted price will be calculated from
+      </span>
+
+      <span className="text-sm font-semibold text-[#212B36]">
+        Based on Price
+      </span>
+
+      <span className="text-xs leading-[18px] text-[#A26306]">
+        selected above
+      </span>
+    </div>
+  );
+}
+type Customer = {
+  id: string;
+  name: string;
+};
+
+type Props = {
+  checked: boolean;
+  customer: Customer;
+  onToggle: () => void;
+};
+
+export default function CustomerSelectRow({
+  checked,
+  customer,
+  onToggle,
+}: Props) {
+  return (
+    <div
+      onClick={onToggle}
+      className="flex flex-row items-center gap-[12px] w-[352px] h-[50px] cursor-pointer"
+    >
+
+      <input
+        type="checkbox"
+        checked={checked}
+        readOnly
+        className="w-4 h-4 accent-[#147D73]"
+      />
+
+      <div className="flex flex-col justify-center">
+        <span className="text-sm font-medium text-[#212B36]">
+          {customer.name}
+        </span>
+
+        <span className="text-xs text-[#637381]">
+          {customer.id}
+        </span>
+      </div>
+
+    </div>
+  );
+}
+import CustomerSelectRow from "./CustomerSelectRow";
+
+type Customer = {
+  id: string;
+  name: string;
+};
+
+type Props = {
+  customers: Customer[];
+  selectedCustomerIds: string[];
+  onToggleCustomer: (id: string) => void;
+};
+
+export default function CustomerSelectList({
+  customers,
+  selectedCustomerIds,
+  onToggleCustomer,
+}: Props) {
+  return (
+    <div className="flex flex-col items-start gap-[16px] w-[352px] h-[314px] overflow-y-auto">
+
+      {customers.map((customer) => (
+        <CustomerSelectRow
+          key={customer.id}
+          customer={customer}
+          checked={selectedCustomerIds.includes(customer.id)}
+          onToggle={() => onToggleCustomer(customer.id)}
+        />
+      ))}
+
+    </div>
+  );
+}
+import { useState } from "react";
+import CustomerSelectList from "./CustomerSelectList";
+
+type Customer = {
+  id: string;
+  name: string;
+};
+
+const MOCK_CUSTOMERS: Customer[] = [
+  {
+    id: "CUS-001",
+    name: "Dan Murphy",
+  },
+  {
+    id: "CUS-002",
+    name: "BWS Sydney",
+  },
+  {
+    id: "CUS-003",
+    name: "Liquorland",
+  },
+];
+
+export default function PricingProfileCustomersSection() {
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<string[]>([]);
+
+  const handleToggleCustomer = (id: string) => {
+    setSelectedCustomerIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id]
+    );
+  };
+
+  return (
+    <CustomerSelectList
+      customers={MOCK_CUSTOMERS}
+      selectedCustomerIds={selectedCustomerIds}
+      onToggleCustomer={handleToggleCustomer}
+    />
+  );
+}
+import { Customer } from "../../../../type/Pricing";
+import CustomerSelectRow from "./CustomerSelectRow";
+
+
+type Props = {
+  customers: Customer[];
+  selectedCustomerIds: string[];
+  onToggleCustomer: React.Dispatch<React.SetStateAction<string[]>>;
+};
+
+export default function CustomerSelectList({
+  customers,
+  selectedCustomerIds,
+  onToggleCustomer,
+}: Props) {
+  return (
+    <div className="flex flex-col items-start gap-[16px] w-[352px] h-[314px]">
+
+      {customers.map((customer) => (
+        <CustomerSelectRow
+          key={customer.id}
+          customer={customer}
+          checked={selectedCustomerIds.includes(customer.id)}
+          onToggle={() => {
+            onToggleCustomer((prev) => {
+              if (prev.includes(customer.id)) {
+                return prev.filter((id) => id !== customer.id);
+              } else {
+                return [...prev, customer.id];
+              }
+            });
+          }}
+        />
+      ))}
+
+    </div>
+  );
+}
+in parent <CustomerSelectList customers={customers} selectedCustomerIds={selectedCustomerIds} onToggleCustomer={setSelectedCustomerIds}/>
+type Customer = {
+  id: string;
+  name: string;
+};
+
+type Props = {
+  checked: boolean;
+  customer: Customer;
+  onToggle: () => void;
+};
+
+export default function CustomerSelectRow({
+  checked,
+  customer,
+  onToggle,
+}: Props) {
+  return (
+    <div
+      onClick={onToggle}
+      className="flex flex-row items-center gap-[12px] w-[352px] h-[50px] cursor-pointer"
+    >
+
+      <input
+        type="checkbox"
+        checked={checked}
+        readOnly
+        className="w-4 h-4 accent-[#147D73]"
+      />
+
+      <div className="flex flex-col justify-center">
+        <span className="text-sm font-medium text-[#212B36]">
+          {customer.name}
+        </span>
+
+        <span className="text-xs text-[#637381]">
+          {customer.id}
+        </span>
+      </div>
+
+    </div>
+  );
+} the toggle is not working
+
+You’re very close — the issue is your prop type + how you’re using the setter is conflicting with what you pass from parent.
+
+❌ Problem
+
+In CustomerSelectList you typed:
+
+onToggleCustomer: React.Dispatch<React.SetStateAction<string[]>>
+
+But then in parent you pass:
+
+onToggleCustomer={setSelectedCustomerIds}
+This is happening because your layout has fixed / wide children + no overflow control, so content is spilling outside the red container.
+
+You mainly need 3 fixes:
+
+Remove implicit height overflow issues
+Ensure inner containers respect width (w-full)
+Add min-w-0 + optional overflow-hidden/auto
+✅ Clean fixed version
+<div className="flex w-full flex-col items-start gap-[10px] rounded-lg bg-red-500 p-[26px] overflow-hidden">
+
+  {/* Header row */}
+  <div className="flex w-full items-center justify-between min-w-0">
+
+    <input
+      className="text-base font-semibold text-[#212B36] bg-transparent outline-none w-full min-w-0"
+      defaultValue="Set Customer"
+    />
+
+    <button className="text-sm font-medium text-[#147D73] whitespace-nowrap">
+      Expand
+    </button>
+
+  </div>
+
+  {/* Search */}
+  <div className="w-full flex flex-col justify-center items-start gap-[6px] p-0 min-w-0">
+    <CustomerSearchFilters
+      customerName={searchCustomerName}
+      customerId={searchCustomerId}
+      customerGroupName={searchCustomerGroupName}
+      customerGroupId={searchCustomerGroupId}
+      onCustomerNameChange={setSearchCustomerName}
+      onCustomerIdChange={setSearchCustomerId}
+      onCustomerGroupNameChange={setSearchCustomerGroupName}
+      onCustomerGroupIdChange={setSearchCustomerGroupId}
+    />
+  </div>
+
+  {/* List */}
+  <div className="w-full flex flex-col justify-center items-start gap-[6px] p-0 min-w-0 overflow-auto">
+    <CustomerSelectList
+      customers={customers}
+      selectedCustomerIds={selectedCustomerIds}
+      onToggleCustomer={handleToggleCustomer}
+    />
+  </div>
+
+</div>
+🔥 Why your layout was breaking
+1. Missing min-w-0
+
+Flex children default to:
+
+min-width: auto → they refuse to shrink
+causes overflow in flex layouts
+2. No overflow control
+
+Your container had:
+
+fixed padding
+wide children (inputs/lists)
+no overflow-hidden
+3. List width mismatch
+
+If CustomerSelectList uses w-[352px], but parent is full width → it can visually overflow.
+
+👉 If needed, also change:
+
+w-[352px] → w-full
+
+inside list components.
+Here’s a cleaner + UI-consistent way to render the product titles inline, no trailing &, and styled like your Figma spec.
+
+✅ Fix: inline product list (no trailing &)
+
+Replace your product section with this:
+
+<div className="flex flex-col gap-[6px]">
+
+  <div className="text-sm text-[#637381]">
+    You’ve selected {selectedProducts.length} Products
+  </div>
+
+  <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[4px]">
+
+    {selectedProducts.map((product, index) => (
+      <div
+        key={product.id}
+        className="text-sm font-medium text-[#212B36] leading-[20px]"
+      >
+        {product.title}
+        {index !== selectedProducts.length - 1 && ","}
+      </div>
+    ))}
+
+  </div>
+
+</div>
+🔥 What this fixes
+1. No trailing &
+
+Instead of:
+
+A & B &
+
+Now:
+
+A, B, C
+2. Inline wrapping (like tags/text flow)
+flex flex-wrap
+
+So it behaves like:
+
+long list → wraps naturally
+no broken layout
+3. Matches your CSS spec
+
+Your Figma style:
+
+font-size: 14px
+font-weight: 500
+color: #212B36
+line-height: 20px
+
+Converted:
+
+text-sm font-medium text-[#212B36] leading-[20px]
+💡 Optional upgrade (cleaner UI alternative)
+
+If you want it to look more like a real pricing review system:
+
+pill style (recommended UX)
+<div className="flex flex-wrap gap-[6px]">
+  {selectedProducts.map((product) => (
+    <span
+      key={product.id}
+      className="px-[10px] py-[4px] rounded-[6px] bg-[#F4F6F8] text-sm font-medium text-[#212B36]"
+    >
+      {product.title}
+    </span>
+  ))}
+</div>
+If you want next step
+
+I can help you turn this into:
+
+🔥 
+grouped preview (Products / Customers / Groups sections)
+🔥 
+“expand/collapse review summary”
+🔥 
+real pricing summary card (Stripe-style checkout preview)
+🔥 
+backend payload builder for Prisma pricing profile
+
+Just tell me 👍
+
+also add <div>With Price Adjustment Mode set to
+        {priceProfileOptions?.adjustmentMode === "fixed" ? "Fixed" : "Dynamic"}
+        {priceProfileOptions?.adjustmentIncrementMode === "increase" ? "Increase" : "Decrease"} by 
+        {priceProfileOptions?.adjustmentValue}{priceProfileOptions?.adjustmentMode === "fixed" ? "$" : "%"} </div> with /* With Price Adjustment Mode set to Dynamic Increase of 10% */
+
+width: 345px;
+height: 18px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #637381;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+Use this styled version:
+Here’s a cleaner + more consistent Tailwind refactor of your component (better spacing, structure, readability, and no layout overflow issues):
+
+✅ Improved version
+return (
+  <div className="flex w-full flex-col items-start gap-[16px] rounded-lg bg-white p-[26px] overflow-hidden">
+
+    {/* Header */}
+    <div className="flex w-full items-center justify-between min-w-0">
+
+      <input
+        className="w-full min-w-0 bg-transparent outline-none text-base font-semibold text-[#212B36]"
+        defaultValue="Review Price Profile"
+      />
+
+      <button className="text-sm font-medium text-[#147D73] whitespace-nowrap">
+        Expand
+      </button>
+
+    </div>
+
+    {/* Empty state */}
+    {(selectedProducts.length === 0 || !priceProfileOptions) && (
+      <div className="text-sm text-[#637381]">
+        No price profile options selected.
+      </div>
+    )}
+
+    {/* Content */}
+    {selectedProducts.length > 0 && priceProfileOptions && (
+      <div className="flex flex-col gap-[12px] w-full">
+
+        {/* Products */}
+        <div className="flex flex-col gap-[6px]">
+
+          <div className="text-sm text-[#637381]">
+            You’ve selected {selectedProducts.length} Products
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[4px]">
+
+            {selectedProducts.map((product, index) => (
+              <span
+                key={product.id}
+                className="text-sm font-medium text-[#212B36] leading-[20px]"
+              >
+                {product.title}
+                {index !== selectedProducts.length - 1 && " & "}
+              </span>
+            ))}
+
+          </div>
+
+        </div>
+
+        {/* Price summary */}
+        <div className="text-xs font-normal text-[#637381] leading-[18px] w-full max-w-[345px]">
+
+          With Price Adjustment Mode set to{" "}
+          <span className="font-semibold text-[#212B36]">
+            {priceProfileOptions.adjustmentMode === "fixed" ? "Fixed" : "Dynamic"}{" "}
+            {priceProfileOptions.adjustmentIncrementMode === "increase" ? "Increase" : "Decrease"}{" "}
+            of {priceProfileOptions.adjustmentValue}
+            {priceProfileOptions.adjustmentMode === "fixed" ? "$" : "%"}
+          </span>
+
+        </div>
+
+        {/* Action */}
+        <button className="text-sm font-medium text-[#147D73] w-fit">
+          Save Price Profile
+        </button>
+
+      </div>
+    )}
+
+  </div>
+);
+🔥 What was improved
+1. Consistent spacing system
+gap-[10px] → gap-[16px]
+internal sections: gap-[12px]
+
+Makes layout more stable and readable.
+
+2. Fixed width issues
+
+Before:
+
+w-[345px] (can break layout inside flex)
+
+Now:
+
+w-full max-w-[345px]
+Here’s the clean step-by-step to set up a .env file in a React app (works for CRA or Vite—I'll show both since people often mix them up).
+
+✅ 1. Create .env file (in project root)
+
+At the same level as package.json:
+
+.env
+✅ 2. Add your variable
+👉 If you're using CRA (Create React App)
+
+You MUST prefix with REACT_APP_
+
+REACT_APP_API_URL=http://localhost:3000
+👉 If you're using Vite (recommended if newer setup)
+
+You MUST prefix with VITE_
+
+VITE_API_URL=http://localhost:3000
+✅ 3. Restart dev server (IMPORTANT)
+
+After adding .env:
+
+npm run dev
+# or
+npm start
+
+If you don’t restart, env won’t load.
+
+✅ 4. Use it in code
+👉 CRA
+const API_URL = process.env.REACT_APP_API_URL;
+👉 Vite
+const API_URL = import.meta.env.VITE_API_URL;
+⚠️ Common mistakes (your future self will thank you)
+❌ forgetting REACT_APP_ or VITE_
+❌ not restarting server
+❌ putting quotes incorrectly ("http://..." not needed)
+❌ trying to use .env inside backend logic (React only sees client-side vars)
+🚀 Optional improvement (clean structure)
+
+Create:
+
+// src/config/env.ts
+export const env = {
+  API_URL: import.meta.env.VITE_API_URL,
+};
+
+Then use:
+
+fetch(`${env.API_URL}/pricing-profile`)
+
+If you want, I can also help you:
+
+set up .env for frontend + backend together
+secure API base URLs properly for production (Vercel / AWS)
+or 
+wire it into Axios instead of fetch (cleaner for your pricing app)
+
+Just say 👍
+
+ <button className="text-sm font-medium text-white bg-[#147D73] px-[14px] py-[8px] rounded-[8px] w-fit"
+           onClick={handlePriceProfileSave}> if  handlePriceProfileSave is success button text: saved 
+
+You need a small state flag to track success.
+app.get("/pricing-profile/match", (req, res) => {
+  const { customerId, productId } = req.query;
+
+Since your backend is now:
+
+app.get("/pricing-profile/match", (req, res) => {
+  const { customerId, productId } = req.query;
+
+your frontend should match single values (not arrays).
+
+✅ Frontend API (correct version for your backend)
+const API_URL = import.meta.env.VITE_API_URL;
+
+export type PricingProfileMatchQuery = {
+  customerId: string;
+  productId: string;
+};
+
+export async function getPricingProfileMatch(
+  query: PricingProfileMatchQuery
+) {
+  const params = new URLSearchParams();
+
+  params.append("customerId", query.customerId);
+  params.append("productId", query.productId);
+
+  const response = await fetch(
+    `${API_URL}/pricing-profile/match?${params.toString()}`
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to fetch pricing profile match");
+  }
+
+  return data;
+}
+✅ Example usage
+const result = await getPricingProfileMatch({
+  customerId: selectedCustomer[0]?.id,
+  productId: selectedProducts[0]?.id,
+});
+⚠️ Important note (your current backend design)
+
+Right now you only support:
+
+1 customer
+1 product
+
+If later you want:
+
+multiple customers
+customer groups
+bulk pricing preview
+
+Then you should upgrade backend to:
+If you remove isEditing, then you need to decide one of these behaviors:
+
+either the input is always editable
+or always read-only (more typical for a review card)
+
+Here’s the clean version with no state, read-only display + buttons still functional:
+
+✅ Updated component (no isEditing)
+return (
+  <div className="flex w-full flex-col items-start gap-[16px] rounded-lg bg-white p-[26px] overflow-hidden">
+
+    {/* Header */}
+    <div className="flex w-full items-center justify-between gap-[12px]">
+
+      <input
+        className="w-full bg-transparent outline-none text-base font-semibold text-[#212B36]"
+        value={priceProfile.name}
+        readOnly
+      />
+
+      <div className="flex items-center gap-[10px] shrink-0">
+
+        <button
+          onClick={() => console.log("edit")}
+          className="text-sm font-medium text-[#147D73] hover:underline"
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={() => console.log("delete")}
+          className="text-sm font-medium text-red-600 hover:underline"
+        >
+          Delete
+        </button>
+
+      </div>
+    </div>
+
+    {/* Products */}
+    <div className="flex flex-col gap-[6px]">
+      <div className="text-sm text-[#637381]">
+        You've selected{" "}
+        <span className="font-medium text-[#212B36]">
+          {priceProfile.productIds.length}
+        </span>{" "}
+        Products
+      </div>
+    </div>
+
+    {/* Price summary */}
+    <div className="text-xs font-normal text-[#637381] leading-[18px] w-full max-w-[345px]">
+      With Price Adjustment Mode set to{" "}
+      <span className="font-semibold text-[#212B36]">
+        {priceProfile.adjustmentMode === "fixed" ? "Fixed" : "Dynamic"}{" "}
+        {priceProfile.adjustmentIncrementMode === "increase" ? "Increase" : "Decrease"}{" "}
+        of {priceProfile.adjustmentValue}
+        {priceProfile.adjustmentMode === "fixed" ? "$" : "%"}
+      </span>
+    </div>
+
+  </div>
+);
+🔥 What changed
+❌ removed editing state completely
+✅ input becomes read-only display field
+✅ Edit/Delete become pure actions (clean review UI pattern)
+💡 Small UX note
+
+This pattern is actually better for your case because:
+
+this is a review card
+editing name inline here can be confusing
+better to open a separate edit modal/page later
+
+If you want, I can next help you 
+turn Edit → opens modal form with full pricing profile editor (industry standard UX).
+MOCK_CUSTOMER_GROUPS_STORE = MOCK_CUSTOMER_GROUPS_STORE.map((group) => {
+  if (!relatedGroupIds.includes(group.id)) return group;
+
+  return {
+    ...group,
+    priceProfileIds: (group.priceProfileIds || []).filter(
+      (pid) => pid !== id
+    ),
+  };
+}); ypu can't do this MOCK_CUSTOMER_GROUPS_STORE is imported
+
+Yep — that’s the key issue.
+
+If MOCK_CUSTOMER_GROUPS_STORE is imported, you usually cannot reassign it because ES modules treat imports as read-only bindings.
+
+So this is ❌ invalid:
+
+MOCK_CUSTOMER_GROUPS_STORE = MOCK_CUSTOMER_GROUPS_STORE.map(...)
+✅ Correct way (mutation-safe for imported mock store)
+
+You must mutate the array in place, not reassign it.
+
+✅ Fix: update items inside the existing array
+MOCK_CUSTOMER_GROUPS_STORE.forEach((group) => {
+  if (!relatedGroupIds.includes(group.id)) return;
+
+  group.priceProfileIds = (group.priceProfileIds || []).filter(
+    (pid: string) => pid !== id
+  );
+});
+🔥 Why this works
+MOCK_CUSTOMER_GROUPS_STORE stays the same reference (import-safe)
+you modify the objects inside it (allowed)
+all other modules see updated values automatically
+⚠️ Important concept
+❌ Not allowed (imported const binding)
+MOCK_CUSTOMER_GROUPS_STORE = [...]
+✅ Allowed
+MOCK_CUSTOMER_GROUPS_STORE.forEach(...)
+group.priceProfileIds = ...
+🚀 Optional improvement (clean architecture)
+Here’s a clean Express API to update product price in your mock in-memory store.
+
+This assumes you have something like:
+
+export const MOCK_PRODUCTS_STORE = [
+  {
+    id: "P_1",
+    title: "Wine A",
+    price: 100,
+  },
+];
+✅ PATCH: Update Product Price API
+import express from "express";
+import { MOCK_PRODUCTS_STORE } from "../mock/store";
+
+const router = express.Router();
+
+router.patch("/products/:id/price", (req, res) => {
+  const { id } = req.params;
+  const { price } = req.body;
+
+  // 1. Validate input
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid product id",
+    });
+  }
+
+  if (price === undefined || typeof price !== "number" || price < 0) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid price value",
+    });
+  }
+
+  // 2. Find product
+  const productIndex = MOCK_PRODUCTS_STORE.findIndex((p) => p.id === id);
+
+  if (productIndex === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: "Product not found",
+    });
+  }
+
+  // 3. Update product (immutable-style safe update)
+  const updatedProduct = {
+    ...MOCK_PRODUCTS_STORE[productIndex],
+    price,
+  };
+
+  MOCK_PRODUCTS_STORE[productIndex] = updatedProduct;
+
+  // 4. Return response
+  return res.status(200).json({
+    status: "ok",
+    data: updatedProduct,
+    debug: {
+      allProducts: MOCK_PRODUCTS_STORE,
+    },
+  });
+});
+
+export default router;
+✅ Example request
+Here’s your PATCH product price API in classic @swagger format matching exactly your style:
+
+/**
+ * @swagger
+ * /api/products/{id}/price:
+ *   patch:
+ *     summary: Update product price by product ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - price
+ *             properties:
+ *               price:
+ *                 type: number
+ *                 example: 120
+ *     responses:
+ *       200:
+ *         description: Product price updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: P_1
+ *                     title:
+ *                       type: string
+ *                       example: Wine A
+ *                     price:
+ *                       type: number
+ *                       example: 120
+ *       400:
+ *         description: Invalid request body or parameters
+ *       404:
+ *         description: Product not found
+ */
+
+If you want, I can also convert your:
+
+pricing profile POST
+delete pricing profile
+match endpoint
+customer group filters
+
+into the same Swagger style so your whole backend is consistent for interview submission.
+
+If you mean the backend returns a single updated pricing profile instead of the whole priceProfiles array, then the return type and returned value should not be PricingProfile[].
+
+Use this instead:
+
+import { PricingProfileRequest } from "../type/Api";
+import { PricingProfile } from "../type/Pricing";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+export async function updatePriceProfile(
+  payload: PricingProfileRequest & { id: string }
+): Promise<PricingProfile> {
+  const response = await fetch(`${API_URL}/api/pricing-profile`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to update pricing profile");
+  }
+
+  return data.value;
+}
+
+Because your backend likely does:
+
+return res.status(200).json({
+  status: "ok",
+  value: updatedProfile,
+});
+
+NOT:
+
+value: pricingProfiles
+
+So the correct return type is:
+
+Promise<PricingProfile>
+
+not:
+
+Promise<PricingProfile[]>
+for Precedence Rule i want mention it like the jira story 
+"As a supplier, I will be able to adjust the priority level of my price profiles (I add an additional UI for priority selection). For customers that connects to multiple price profile, it will first ranked by priority from high to low, for prices that are in the same priority group, the least price will be selected"
+Here’s your requirement rewritten in a clean Jira story format (more structured and product-ready):
+
+Story: Price Profile Priority-Based Pricing Rule
+
+As a supplier,
+I want to adjust the priority level of my price profiles (via a priority selection field in the UI),
+so that I can control which pricing rules take precedence when multiple profiles apply to the same customer.
+
+Acceptance Criteria
+Each price profile has a configurable priority level
+When a customer matches multiple price profiles:
+Profiles are evaluated by priority (high → low)
+The system first selects the profiles with the highest priority
+If multiple profiles share the same priority level:
+The system selects the lowest final price among them
+Priority selection is available and editable in the UI when creating or updating a price profile
+Business Rule (Precedence Logic)
+Filter all matching price profiles for a customer/product
+Sort by priority (descending)
+Take highest priority group
+If multiple profiles exist in that group:
+Choose the minimum resulting price
+Notes
+Priority is a numeric field (higher number = higher priority)
+Pricing calculation happens after adjustment rules are applied
+This ensures deterministic pricing even when multiple rules apply
+
+If you want, I can also convert this into:
+
+backend pseudocode (match engine logic)
+or a 
+Prisma schema + query design
+or a 
+flow diagram for interview presentation (very strong signal)
+just rewrite mine keep it simple 
+
+As a supplier, I will be able to adjust the priority level of my price profiles (with an additional UI for priority selection). When a customer is connected to multiple price profiles, the system will first rank them by priority from high to low. If multiple price profiles share the same priority level, the lowest price among them will be selected.
+
+is it a good explaination
+
+It’s good and understandable, but it’s a bit informal and slightly ambiguous in one part (“lowest price among them” can be misread depending on context).
+
+If you’re using it in a Jira story, I’d say it’s ~7.5/10 as-is: clear intent, but could be tightened for precision.
+
+A slightly improved version (still simple, same meaning):
+
+As a supplier, I will be able to adjust the priority level of my price profiles (with an additional UI for priority selection). When a customer is connected to multiple price profiles, the system will first rank them by priority from high to low. If multiple price profiles share the same priority level, the profile that results in the lowest final price will be selected.
+
+Key improvement: “final price” makes the rule unambiguous (important for backend logic).
+
+If you want it to sound more “engineering-ready” without becoming complex, your current version is already close enough for most Jira/PRDs.
+
+What you’re seeing is expected with your current Docker setup.
+
+Right now your frontend service is almost certainly running a production build inside the container, not a live dev server. That means:
+
+Docker builds your frontend once (npm run build)
+It serves static files (likely via Nginx on port 80)
+After that, file changes on your host machine do NOT affect the container
+
+So nothing “syncs”.
+
+Why it doesn’t sync
+
+Your compose file:
+
+frontend:
+  build: ./frontend
+  ports:
+    - "3000:80"
+
+This usually means:
+
+container runs a built output (dist or build)
+served by Nginx or static server
+no source code mounted
+no hot reload process running
+If you want LIVE sync (hot reload)
+
+You need a development setup, not a production image.
+
+Fix: mount your code + run dev server
+
+Example (React/Vite/Next dev style):
+
+frontend:
+  build: ./frontend
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./frontend:/app
+    - /app/node_modules
+  command: npm run dev
+  environment:
+    - CHOKIDAR_USEPOLLING=true
+Key changes explained
+1. volumes
+- ./frontend:/app
+
+This is what enables syncing:
+👉 local code → container code
+
+Without this, container is isolated.
+
+2. npm run dev
+
+Instead of serving static build, you run:
+
+Vite dev server
+Next.js dev server
+CRA dev server
+
+These support hot reload.
+
+3. CHOKIDAR_USEPOLLING=true
+
+Docker file watching is unreliable on some systems (especially Windows/macOS).
+This forces polling so changes are detected.
+
+Backend sync (same idea)
+
+If your backend also doesn’t auto-reload, you need:
+
+volumes:
+  - ./backend:/app
+command: npm run dev
+
+(using nodemon or ts-node-dev)
+
+Quick mental model
+Mode	What you have	What happens
+Production	Docker build + Nginx	No sync
+Dev	Volume + dev server	Hot reload
+If you want
+
+Paste your frontend Dockerfile, I can tell you exactly whether it’s in production or dev mode and fix it precisely.
+Got it — you want a proper dev + prod setup that actually supports live syncing.
+
+I’ll give you a clean, standard setup that you can use directly.
+
+✅ 1. Dockerfile (DEV + PROD combined)
+
+Replace your frontend Dockerfile with this:
+
+# -----------------------
+# Base stage
+# -----------------------
+FROM node:22-alpine AS base
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+# -----------------------
+# Development stage
+# -----------------------
+FROM base AS dev
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+# -----------------------
+# Build stage (production)
+# -----------------------
+FROM base AS build
+RUN npm run build
+
+# -----------------------
+# Production stage (nginx)
+# -----------------------
+FROM nginx:alpine AS prod
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+✅ 2. docker-compose.yml (DEV setup with hot reload)
+
+Use this for development:
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+
+      $ docker compose ps
+NAME                                     IMAGE                                  COMMAND                  SERVICE    CREATED          STATUS          PORTS
+foboh_engineering_challenge-frontend-1   foboh_engineering_challenge-frontend   "docker-entrypoint.s…"   frontend   23 seconds ago   Up 21 seconds   0.0.0.0:3000->5173/tcp, [::]:3000->5173/tcp
+
+Good — now your container is actually running correctly.
+
+This line confirms everything is working at Docker level:
+
+STATUS: Up 21 seconds
+PORTS: 0.0.0.0:3000 -> 5173/tcp
+
+So the only issue left is how you’re accessing it.
+
+✅ What this means
+Vite is running inside container on 5173
+Docker maps it to your machine on 3000
+So browser must use:
+
+👉 http://localhost:3000
+
+NOT 5173.
+
+🚨 Why 5173 doesn’t work
+
+Because 5173 is inside the container network only.
+
+From your machine:
+
+URL	Works?
+http://localhost:5173	❌ No
+http://localhost:3000	✅ Yes
+🧠 Mental model
+Your laptop
+   │
+   ├── localhost:3000  ← Docker exposed port (use this)
+   │
+   ▼
+Docker container
+   └── localhost:5173 (Vite dev server)
+⚠️ If 3000 still shows nothing
+
+Then check:
+
+1. Open logs
+docker compose logs frontend
+
+Look for:
+
+Vite startup message
+errors like missing deps or crash loops
+Now we’re at the real issue: you have a running dev server, but your code changes aren’t being picked up inside Docker.
+
+That almost always means one thing:
+
+❌ Your source code is NOT properly mounted into the container (or Vite isn’t watching it correctly)
+
+🚨 Root cause
+
+Even though your container is running:
+
+Up 21 seconds
+
+Docker is likely using:
+
+a copied snapshot of your code (from build time)
+NOT your live filesystem
+
+So changes on your laptop never reach Vite.
+
+✅ Fix (this is the correct setup)
+
+You need volume mounting + correct working directory
+
+🔧 Final working docker-compose (frontend)
+frontend:
+  build: ./frontend
+  ports:
+    - "3000:5173"
+  volumes:
+    - ./frontend:/app
+    - /app/node_modules
+  working_dir: /app
+  environment:
+    - CHOKIDAR_USEPOLLING=true
+  command: npm run dev -- --host 0.0.0.0
+🚨 VERY IMPORTANT (this is usually what people miss)
+1. You MUST mount the code
+- ./frontend:/app
+
+Without this:
+👉 Docker uses its own internal copy
+👉 no syncing happens
+
+2. You MUST avoid overwriting node_modules
+- /app/node_modules
+
+Without this:
+👉 dependencies break or disappear
+
+3. You MUST force file watching (important on Windows/Mac)
+CHOKIDAR_USEPOLLING=true
+
+Vite sometimes fails to detect file changes in Docker otherwise.
+
+🧪 How to test if sync is working
+
+Do this:
+
+Open App.tsx
+Change text like:
+Hello World → Hello Docker
+
+If it works:
+👉 browser updates instantly
+
+If NOT:
+👉 run this check below
+
+🔍 Debug check (very important)
+
+Run:
+
+docker exec -it <frontend_container_id> sh
+
+Then inside container:
+
+ls /app/src
+
+👉 If you DON’T see your latest code → volume mount is broken
+
+⚠️ Most likely issue in your case
+
+Based on your earlier setup, I strongly suspect:
+
+You were previously using a production Dockerfile or missing volumes
+
+So your container is still running a frozen copy of the app
+
+🚀 Fix in one reset command
+
+Run:
+
+docker compose down -v
+docker compose up --build
+🧠 Simple truth
+Setup	Sync works?
+COPY code in Dockerfile	❌ No
+volumes: ./frontend:/app	✅ Yes
+Here’s a clean way to call your backend API from the frontend.
+
+✅ Simple fetch (recommended for quick use)
+export async function getProductFilters() {
+  const res = await fetch("http://localhost:3001/api/product/filters");
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch product filters");
+  }
+
+  const data = await res.json();
+  return data.value; // { categories, segments, brands }
+}
+✅ Usage in a React component
+import { useEffect, useState } from "react";
+import { getProductFilters } from "./api/getProductFilters";
+
+export default function ProductPage() {
+  const [filters, setFilters] = useState<any>(null);
+
+  useEffect(() => {
+    getProductFilters()
+      .then(setFilters)
+      .catch(console.error);
+  }, []);
+
+  if (!filters) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1>Filters</h1>
+
+      <h2>Categories</h2>
+      <pre>{JSON.stringify(filters.categories, null, 2)}</pre>
+
+      <h2>Brands</h2>
+      <pre>{JSON.stringify(filters.brands, null, 2)}</pre>
+    </div>
+  );
+}
+🚨 Important (Docker setup issue you WILL hit)
+
+If frontend is in Docker, this:
+
+http://localhost:3001
+
+only works if backend is exposed correctly.
+
+🔥 Better practice (recommended)
+
+Use a proxy so you avoid hardcoding URLs.
+
+If using Vite → add this:
+// vite.config.ts
+server: {
+  proxy: {
+    "/api": "http://backend:3001"
+  }
+}
+
+Then your frontend call becomes:
+
+fetch("/api/product/filters")
+
+✔ no CORS issues
+✔ works inside Docker network
+✔ cleaner architecture
+
+Got it — you want to call a backend API from React and send a JSON body.
+
+Since you're sending data, this must be a POST request (not GET).
+
+✅ 1. Backend (for reference)
+
+Make sure your backend route looks like this:
+
+app.post("/api/product", (req, res) => {
+  const { name, sku, category, segment, brand } = req.body;
+
+  res.json({
+    status: "ok",
+    received: { name, sku, category, segment, brand },
+  });
+});
+✅ 2. Frontend API call
+export async function createProduct() {
+  const res = await fetch("http://localhost:3001/api/product", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "dfsd",
+      sku: "fgdfg",
+      category: "",
+      segment: "Sparkling",
+      brand: "Koyama Wines",
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create product");
+  }
+
+  return res.json();
+}
+✅ 3. Use it inside React component (on init or button)
+On component mount:
+import { useEffect } from "react";
+import { createProduct } from "./api/createProduct";
+
+export default function ProductPage() {
+  useEffect(() => {
+    createProduct()
+      .then((res) => console.log("Response:", res))
+      .catch(console.error);
+  }, []);
+
+  return <div>Creating product...</div>;
+}
+OR better (recommended): on button click
+import { createProduct } from "./api/createProduct";
+
+export default function ProductPage() {
+  return (
+    <button
+      onClick={async () => {
+        const res = await createProduct();
+        console.log(res);
+      }}
+    >
+      Create Product
+    </button>
+  );
+}
+🚨 Important (common Docker issue)
+
+If backend is in Docker, this:
+
+http://localhost:3001
+
+works ONLY if:
+
+backend port is exposed (3001:3001)
+backend listens on 0.0.0.0
+
+Make sure backend has:
+
+app.listen(3001, "0.0.0.0");
+🧠 Best practice (cleaner setup)
+
+Instead of hardcoding URL:
+
+fetch("/api/product", ...)
+
+And use Vite proxy:
+
+// vite.config.ts
+server: {
+  proxy: {
+    "/api": "http://backend:3001"
+  }
+}
+
+If you want next step, I can help you:
+
+type-safe API layer (TypeScript DTOs)
+React Query version (production-grade)
+or full backend validation with Zod
+
+Just tell me 👍
+
+this should be a get getting all prducts with these filters
+
+Got it — this should be a GET request with query parameters, not a POST with a body.
+
+In HTTP, GET does not use a request body (even though browsers let you technically do it, it’s not standard or reliable). Filters should go in the query string.
+
+✅ 1. Backend (Express)
+
+Update your API to read from req.query:
+
+app.get("/api/products", (req, res) => {
+  const { name, sku, category, segment, brand } = req.query;
+
+  // example: filter logic (in-memory or DB later)
+  const filteredProducts = products.filter((p) => {
+    return (
+      (!name || p.name.includes(name as string)) &&
+      (!sku || p.sku.includes(sku as string)) &&
+      (!category || p.category === category) &&
+      (!segment || p.segment === segment) &&
+      (!brand || p.brand === brand)
+    );
+  });
+
+  res.json({
+    status: "ok",
+    data: filteredProducts,
+  });
+});
+✅ 2. Frontend API call (GET with filters)
+export async function getProducts(filters: {
+  name?: string;
+  sku?: string;
+  category?: string;
+  segment?: string;
+  brand?: string;
+}) {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) params.append(key, value);
+  });
+
+  const res = await fetch(
+    `http://localhost:3001/api/products?${params.toString()}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  return res.json();
+}
+You just need to add a unique id field to each product.
+
+Since this is mock data, the cleanest approach is to use a UUID or simple deterministic ID.
+
+✅ Option 1: Simple mock IDs (fast & readable)
+const products = [
+  {
+    id: "HGVPIN216",
+    title: "High Garden Pinot Noir 2021",
+    sku: "HGVPIN216",
+    brand: "High Garden",
+    subCategory: "Wine",
+    segment: "Red",
+    price: 279.06,
+  },
+  {
+    id: "KOYBRUNV6",
+    title: "Koyama Methode Brut Nature NV",
+    sku: "KOYBRUNV6",
+    brand: "Koyama Wines",
+    subCategory: "Wine",
+    segment: "Sparkling",
+    price: 120.0,
+  },
+  {
+    id: "KOYNR1837",
+    title: "Koyama Riesling 2018",
+    sku: "KOYNR1837",
+    brand: "Koyama Wines",
+    subCategory: "Wine",
+    segment: "Port/Dessert",
+    price: 215.04,
+  },
+  {
+    id: "KOYRIE19",
+    title: "Koyama Tussock Riesling 2019",
+    sku: "KOYRIE19",
+    brand: "Koyama Wines",
+    subCategory: "Wine",
+    segment: "White",
+    price: 215.04,
+  },
+  {
+    id: "LACBNATNV6",
+    title: "Lacourte-Godbillon Brut Cru NV",
+    sku: "LACBNATNV6",
+    brand: "Lacourte-Godbillon",
+    subCategory: "Wine",
+    segment: "Sparkling",
+    price: 409.32,
+  },
+];
+✅ Option 2: Proper UUID (best practice)
+
+If you want real-world style:
+
+import { v4 as uuidv4 } from "uuid";
+
+const products = [
+  {
+    id: uuidv4(),
+    title: "High Garden Pinot Noir 2021",
+    sku: "HGVPIN216",
+    brand: "High Garden",
+    subCategory: "Wine",
+    segment: "Red",
+    price: 279.06,
+  },
+];
+
+Install:
+
+npm install uuid
+🧠 What you should use
+Type	When
+sku as id	simple mock apps (your case is fine)
+UUID	production apps
+database id	Prisma/Postgres later
+⚡ Recommendation for your project
+
+Since you’re already using sku uniquely:
+
+👉 just use:
+
+id: sku
+
+This is actually the cleanest for now.
+Here’s a clean Express POST API that matches your PricingProfileRequest type and returns { status: "ok" } on success.
+
+✅ Backend POST API
+import express from "express";
+
+const app = express();
+
+app.use(express.json());
+
+// Mock storage (replace with DB later)
+const pricingProfiles: any[] = [];
+
+app.post("/pricing-profile", (req, res) => {
+  const body = req.body as PricingProfileRequest;
+
+  const {
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds,
+    customerIds,
+    priority,
+  } = body;
+
+  // basic validation
+  if (
+    !adjustmentMode ||
+    !adjustmentIncrementMode ||
+    adjustmentValue === undefined ||
+    !Array.isArray(productIds) ||
+    !Array.isArray(customerGroupIds) ||
+    !Array.isArray(customerIds)
+  ) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid request body",
+    });
+  }
+
+  const newProfile = {
+    id: `PP_${Date.now()}`,
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds,
+    customerIds,
+    priority,
+    createdAt: new Date().toISOString(),
+  };
+
+  pricingProfiles.push(newProfile);
+
+  return res.json({
+    status: "ok",
+    data: newProfile,
+  });
+});
+
+app.listen(3001, "0.0.0.0", () => {
+  console.log("Backend running on port 3001");
+});
+
+This error is very straightforward:
+
+❌ ReferenceError: MOCK_PRICING_PROFILES_STORE is not defined
+
+It means you are using the variable before declaring it (or not declaring it at all).
+
+✅ Fix
+
+You must define your mock storage outside the route, at the top of your file.
+
+✅ Correct full setup
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+// ✅ DEFINE THIS FIRST (GLOBAL MOCK STORE)
+const MOCK_PRICING_PROFILES_STORE: any[] = [];
+
+app.post("/pricing-profile", (req, res) => {
+  const body = req.body;
+
+  const {
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds,
+    customerIds,
+    priority,
+  } = body;
+
+  // basic validation
+  if (
+    !adjustmentMode ||
+    !adjustmentIncrementMode ||
+    adjustmentValue === undefined ||
+    !Array.isArray(productIds) ||
+    !Array.isArray(customerGroupIds) ||
+    !Array.isArray(customerIds)
+  ) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid request body",
+    });
+  }
+
+  const newProfile = {
+    id: `PP_${Date.now()}`,
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds,
+    customerIds,
+    priority,
+    createdAt: new Date().toISOString(),
+  };
+
+  // ✅ now this works
+  MOCK_PRICING_PROFILES_STORE.push(newProfile);
+
+  return res.json({
+    status: "ok",
+    data: MOCK_PRICING_PROFILES_STORE,
+  });
+});
+
+app.listen(3001, "0.0.0.0", () => {
+  console.log("Backend listening on port 3001");
+});
+🧠 Why this happened
+
+In JavaScript/TypeScript:
+
+variables must be declared before use
+Express routes do NOT create shared state automatically
+your “store” must live in module scope
+🚀 Mental model
+GLOBAL SCOPE (shared memory)
+   ↓
+MOCK_PRICING_PROFILES_STORE  ← must be here
+
+ROUTES
+   ↓
+read/write to that store
+⚡ Common mistake (what you did)
+app.post(...)
+
+MOCK_PRICING_PROFILES_STORE = [] // or missing entirely ❌
+
+or never declared at all
+
+If you want next step
+
+I can help you upgrade this into:
+
+proper Prisma model (PricingProfile table)
+relational joins (products/customers/groups)
+priority-based override logic (real pricing engine behavior)
+
+Just tell me 👍
+
+const MOCK_PRICING_PROFILES_STORE: any[] = []; is in db.ts and i export it
+
+Ahh — then this is just an import/export issue, not a logic problem.
+
+Right now you have:
+
+const MOCK_PRICING_PROFILES_STORE: any[] = [];
+
+in db.ts, but in your route file it’s either:
+
+not imported correctly, or
+imported with a different name, or
+using the wrong export style
+✅ Fix (correct way)
+✅ 1. In db.ts (make sure it's exported)
+Option A (named export — recommended)
+export const MOCK_PRICING_PROFILES_STORE: any[] = [];
+✅ 2. In your route file
+import { MOCK_PRICING_PROFILES_STORE } from "./db";
+
+⚠️ Make sure the path is correct (./db, ../db, etc.)
+
+🚨 Why your error happened
+
+This error:
+
+ReferenceError: MOCK_PRICING_PROFILES_STORE is not defined
+
+means JavaScript literally cannot see the variable in this file scope → so import is missing or wrong.
+Good — this is exactly the kind of “real pricing engine logic” you want. Let’s structure it cleanly so it behaves correctly and doesn’t become messy later.
+
+🧠 What you want (decoded)
+
+When creating a pricing profile:
+
+Step 1
+
+If customerIds.length > 0
+→ create a new CustomerGroup
+→ store it in CUSTOMER_GROUP_STORE
+
+Step 2
+
+Then pricing profile should store:
+
+customerGroupIds = existing + newly created group id
+NOT raw customerIds anymore (implicitly moved into group)
+✅ Clean in-memory DB setup (db.ts)
+export const MOCK_PRICING_PROFILES_STORE: any[] = [];
+export const MOCK_CUSTOMER_GROUP_STORE: CustomerGroup[] = [];
+
+export type CustomerGroup = {
+  id: string;
+  name: string;
+  customerIds: string[];
+};
+🚀 Updated POST logic
+import {
+  MOCK_PRICING_PROFILES_STORE,
+  MOCK_CUSTOMER_GROUP_STORE,
+  CustomerGroup,
+} from "./db";
+
+app.post("/pricing-profile", (req, res) => {
+  const body = req.body;
+
+  const {
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds = [],
+    customerIds = [],
+    priority,
+  } = body;
+
+  // validation
+  if (
+    !adjustmentMode ||
+    !adjustmentIncrementMode ||
+    adjustmentValue === undefined ||
+    !Array.isArray(productIds)
+  ) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid request body",
+    });
+  }
+
+  let finalCustomerGroupIds = [...customerGroupIds];
+
+  // =================================================
+  // 1. If customerIds exist → create new CustomerGroup
+  // =================================================
+  if (customerIds.length > 0) {
+    const newGroup: CustomerGroup = {
+      id: `CG_${Date.now()}`,
+      name: `Auto Group ${MOCK_CUSTOMER_GROUP_STORE.length + 1}`,
+      customerIds,
+    };
+
+    MOCK_CUSTOMER_GROUP_STORE.push(newGroup);
+
+    finalCustomerGroupIds.push(newGroup.id);
+  }
+
+  // =================================================
+  // 2. Create Pricing Profile
+  // =================================================
+  const newProfile = {
+    id: `PP_${Date.now()}`,
+    name: `Price Profile ${MOCK_PRICING_PROFILES_STORE.length + 1}`,
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds: finalCustomerGroupIds,
+    priority,
+    createdAt: new Date().toISOString(),
+  };
+
+  MOCK_PRICING_PROFILES_STORE.push(newProfile);
+
+  // =================================================
+  // 3. Return ALL pricing profiles
+  // =================================================
+  return res.json({
+    status: "ok",
+    data: MOCK_PRICING_PROFILES_STORE,
+    debug: {
+      createdGroup: customerIds.length > 0 ? true : false,
+      customerGroups: MOCK_CUSTOMER_GROUP_STORE,
+    },
+  });
+});
+
+Perfect — now you’re basically building a real relational pricing system in memory. This is the correct next step.
+
+You want:
+
+When a CustomerGroup is created → also update each Customer → add groupId
+
+✅ Assumptions (important)
+
+You should have:
+
+export const MOCK_CUSTOMERS_STORE: Customer[] = [];
+
+export type Customer = {
+  id: string;
+  name: string;
+  groupIds?: string[];
+};
+🚀 Updated logic (clean + correct)
+🔥 Key idea
+
+When creating a group:
+
+Create CustomerGroup
+Push to group store
+Loop customers
+If customer exists → update groupIds
+✅ Updated POST logic
+import {
+  MOCK_PRICING_PROFILES_STORE,
+  MOCK_CUSTOMER_GROUP_STORE,
+  MOCK_CUSTOMERS_STORE,
+  CustomerGroup,
+} from "./db";
+🔥 Updated customer group creation block
+if (customerIds.length > 0) {
+  const newGroup: CustomerGroup = {
+    id: `CG_${Date.now()}`,
+    name: `Auto Group ${MOCK_CUSTOMER_GROUP_STORE.length + 1}`,
+    customerIds,
+  };
+
+  // 1. store group
+  MOCK_CUSTOMER_GROUP_STORE.push(newGroup);
+
+  // 2. update customers (RELATION SYNC)
+  customerIds.forEach((customerId) => {
+    const customer = MOCK_CUSTOMERS_STORE.find((c) => c.id === customerId);
+
+    if (customer) {
+      if (!customer.groupIds) {
+        customer.groupIds = [];
+      }
+
+      // avoid duplicates
+      if (!customer.groupIds.includes(newGroup.id)) {
+        customer.groupIds.push(newGroup.id);
+      }
+    }
+  });
+
+  // 3. attach group to pricing profile input
+  finalCustomerGroupIds.push(newGroup.id);
+}
+🧠 What this achieves
+Before (bad state)
+Customer
+- no knowledge of groups ❌
+After (correct relational model)
+CustomerGroup
+  ↳ customerIds
+
+Customer
+  ↳ groupIds ✅ (back reference)
+
+Now you have bidirectional relation in memory:
+
+Group → knows customers
+Customer → knows groups
+⚠️ Important design note (this matters)
+
+You are now manually maintaining relationships.
+
+That means:
+
+You must ensure:
+no duplicate groupIds
+no missing sync
+no stale references
+🚀 Small improvement (recommended)
+
+Make this helper function:
+
+function addCustomerToGroup(customerId: string, groupId: string) {
+  const customer = MOCK_CUSTOMERS_STORE.find((c) => c.id === customerId);
+
+  if (!customer) return;
+
+  customer.groupIds ??= [];
+
+  if (!customer.groupIds.includes(groupId)) {
+    customer.groupIds.push(groupId);
+  }
+}
+
+Then:
+
+customerIds.forEach((id) => addCustomerToGroup(id, newGroup.id));
+🧠 Big picture (what you just built)
+
+You are now implementing:
+
+✔ Many-to-many relationship
+Customers ↔ CustomerGroups
+✔ Join-table behavior (like Prisma/Postgres)
+
+but in memory
+
+🚀 If you want next step (high value)
+
+I can help you convert this into:
+
+🔥 Prisma schema version of your system
+Customer
+CustomerGroup
+PricingProfile
+many-to-many relations properly handled
+no manual syncing needed
+
+OR
+
+🔥 Pricing engine logic
+priority conflict resolution
+best matching pricing rule
+product × customer × group evaluation
+
+Just tell me 👍
+Here’s the full rewritten POST /pricing-profile API, including:
+
+customer group creation
+syncing customers → groupIds
+pricing profile creation
+returning all pricing profiles
+clean structure + safe defaults
+✅ FULL IMPLEMENTATION
+import express from "express";
+import {
+  MOCK_PRICING_PROFILES_STORE,
+  MOCK_CUSTOMER_GROUP_STORE,
+  MOCK_CUSTOMERS_STORE,
+  CustomerGroup,
+} from "./db";
+
+const app = express();
+
+app.use(express.json());
+
+app.post("/pricing-profile", (req, res) => {
+  const body = req.body;
+
+  const {
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds = [],
+    customerIds = [],
+    priority,
+  } = body;
+
+  // =================================================
+  // 1. VALIDATION
+  // =================================================
+  if (
+    !adjustmentMode ||
+    !adjustmentIncrementMode ||
+    adjustmentValue === undefined ||
+    !Array.isArray(productIds)
+  ) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid request body",
+    });
+  }
+
+  let finalCustomerGroupIds = [...customerGroupIds];
+
+  // =================================================
+  // 2. CREATE CUSTOMER GROUP (IF customerIds EXIST)
+  // =================================================
+  if (customerIds.length > 0) {
+    const newGroup: CustomerGroup = {
+      id: `CG_${Date.now()}`,
+      name: `Auto Group ${MOCK_CUSTOMER_GROUP_STORE.length + 1}`,
+      customerIds,
+    };
+
+    MOCK_CUSTOMER_GROUP_STORE.push(newGroup);
+
+    // sync customers → add groupId
+    customerIds.forEach((customerId: string) => {
+      const customer = MOCK_CUSTOMERS_STORE.find(
+        (c) => c.id === customerId
+      );
+
+      if (customer) {
+        customer.groupIds ??= [];
+
+        if (!customer.groupIds.includes(newGroup.id)) {
+          customer.groupIds.push(newGroup.id);
+        }
+      }
+    });
+
+    finalCustomerGroupIds.push(newGroup.id);
+  }
+
+  // =================================================
+  // 3. CREATE PRICING PROFILE
+  // =================================================
+  const newProfile = {
+    id: `PP_${Date.now()}`,
+    name: `Price Profile ${MOCK_PRICING_PROFILES_STORE.length + 1}`,
+    adjustmentMode,
+    adjustmentIncrementMode,
+    adjustmentValue,
+    productIds,
+    customerGroupIds: finalCustomerGroupIds,
+    priority: priority ?? 0,
+    createdAt: new Date().toISOString(),
+  };
+
+  MOCK_PRICING_PROFILES_STORE.push(newProfile);
+
+  // =================================================
+  // 4. RESPONSE (ALL PROFILES)
+  // =================================================
+  return res.json({
+    status: "ok",
+    data: MOCK_PRICING_PROFILES_STORE,
+    meta: {
+      createdGroup: customerIds.length > 0,
+      totalProfiles: MOCK_PRICING_PROFILES_STORE.length,
+      totalGroups: MOCK_CUSTOMER_GROUP_STORE.length,
+    },
+  });
+});
+
+export default app;
+🧠 What this API now does
+When called:
+1. If customerIds provided:
+creates CustomerGroup
+links customers → groupIds updated
+adds groupId into pricing profile
+2. Creates PricingProfile
+stores productIds + groupIds
+sets priority
+3. Returns:
+all pricing profiles
+metadata summary
+🚀 What you basically built
+
+This is now a simplified version of a real system:
+
+✔ Many-to-many relationships
+✔ Auto segmentation (CustomerGroup creation)
+✔ Pricing rule engine base
+✔ Relational consistency (manual ORM behavior)
+
+⚡ If you want next upgrade
+
+I can help you turn this into:
+
+Prisma schema (real DB design)
+proper join tables (no manual syncing)
+pricing resolution engine (which profile wins per product/customer)
+caching + performance layer
+
+Just say 👍
+
+other thing for the api /pricing-profile
+export type CustomerGroup = {
+  id: string;
+  name: string;
+  customerIds: string[];
+  priceProfileIds?: string[];
+}; so when priceProfile add customerGroupId , customerGroup also add priceProfileId
+
+Yep — now you’re building true bidirectional relational consistency, like a mini ORM. Good direction.
+
+You want:
+
+When a PricingProfile is created
+→ CustomerGroup gets updated
+→ add priceProfileId into CustomerGroup.priceProfileIds
+
+✅ Updated CustomerGroup type
+export type CustomerGroup = {
+  id: string;
+  name: string;
+  customerIds: string[];
+  priceProfileIds?: string[];
+};
+
+Good — this is basically your pricing resolution query engine now.
+
+You want:
+
+Given customerId + productId
+→ find all applicable PricingProfiles through:
+
+Customer → CustomerGroups → PricingProfiles
+AND filter where productId exists in profile.productIds
+🧠 What you're building (important)
+
+This is a 3-hop join in memory:
+
+Customer
+  → CustomerGroup (via groupIds)
+      → PricingProfile (via customerGroupIds)
+          → filter by productIds
+✅ GET API: /pricing-profile/match
+🔥 Full implementation
+import express from "express";
+import {
+  MOCK_CUSTOMERS_STORE,
+  MOCK_CUSTOMER_GROUP_STORE,
+  MOCK_PRICING_PROFILES_STORE,
+} from "./db";
+
+const app = express();
+
+/**
+ * GET /pricing-profile/match?customerId=xxx&productId=yyy
+ */
+app.get("/pricing-profile/match", (req, res) => {
+  const { customerId, productId } = req.query;
+
+  // =================================================
+  // 1. VALIDATION
+  // =================================================
+  if (!customerId || !productId) {
+    return res.status(400).json({
+      status: "error",
+      message: "customerId and productId are required",
+    });
+  }
+
+  // =================================================
+  // 2. FIND CUSTOMER
+  // =================================================
+  const customer = MOCK_CUSTOMERS_STORE.find(
+    (c) => c.id === customerId
+  );
+
+  if (!customer) {
+    return res.status(404).json({
+      status: "error",
+      message: "Customer not found",
+    });
+  }
+
+  const customerGroupIds = customer.groupIds ?? [];
+
+  // =================================================
+  // 3. FIND GROUPS (optional but useful for debugging)
+  // =================================================
+  const groups = MOCK_CUSTOMER_GROUP_STORE.filter((g) =>
+    customerGroupIds.includes(g.id)
+  );
+
+  // =================================================
+  // 4. FIND MATCHING PRICING PROFILES
+  // =================================================
+  const matchedProfiles = MOCK_PRICING_PROFILES_STORE.filter(
+    (profile) => {
+      const hasCustomerGroupMatch = profile.customerGroupIds?.some((id: string) =>
+        customerGroupIds.includes(id)
+      );
+
+      const hasProductMatch = profile.productIds?.includes(
+        productId as string
+      );
+
+      return hasCustomerGroupMatch && hasProductMatch;
+    }
+  );
+
+  // =================================================
+  // 5. SORT BY PRIORITY (IMPORTANT FOR PRICING ENGINE)
+  // =================================================
+  matchedProfiles.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+
+  // =================================================
+  // 6. RESPONSE
+  // =================================================
+  return res.json({
+    status: "ok",
+    data: {
+      customerId,
+      productId,
+      groups,
+      matchedProfiles,
+      bestMatch: matchedProfiles[0] ?? null,
+    },
+  });
+});
+🧠 What this API does
+Step-by-step:
+1. Find customer
+gets groupIds
+2. Find groups
+optional debug info
+3. Find pricing profiles
+
+Matches if:
+
+profile.customerGroupIds intersects customer.groupIds
+AND
+profile.productIds includes productId
+🚀 Output example
+{
+  "status": "ok",
+  "data": {
+    "customerId": "CUST001",
+    "productId": "HGVPIN216",
+    "matchedProfiles": [
+      {
+        "id": "PP_123",
+        "priority": 10
+      }
+    ],
+    "bestMatch": {
+      "id": "PP_123",
+      "priority": 10
+    }
+  }
+}
+Got it — now you’re defining real pricing resolution logic:
+
+Match pricing profiles
+Sort by:
+highest priority first
+then lowest price
+Return best match
+🧠 Important clarification
+
+Your pricing profile doesn’t directly have a single “price”, so I assume:
+
+You mean product.price OR computed adjusted price
+
+Since you didn’t pass product object, I’ll assume:
+👉 we use product.price from product store
+
+✅ UPDATED API (priority → price sorting)
+import express from "express";
+import {
+  MOCK_CUSTOMERS_STORE,
+  MOCK_CUSTOMER_GROUP_STORE,
+  MOCK_PRICING_PROFILES_STORE,
+  MOCK_PRODUCTS_STORE,
+} from "./db";
+
+const app = express();
+
+/**
+ * GET /pricing-profile/match?customerId=xxx&productId=yyy
+ */
+app.get("/pricing-profile/match", (req, res) => {
+  const { customerId, productId } = req.query;
+
+  if (!customerId || !productId) {
+    return res.status(400).json({
+      status: "error",
+      message: "customerId and productId are required",
+    });
+  }
+
+  // =================================================
+  // 1. FIND CUSTOMER
+  // =================================================
+  const customer = MOCK_CUSTOMERS_STORE.find(
+    (c) => c.id === customerId
+  );
+
+  if (!customer) {
+    return res.status(404).json({
+      status: "error",
+      message: "Customer not found",
+    });
+  }
+
+  const customerGroupIds = customer.groupIds ?? [];
+
+  // =================================================
+  // 2. FIND PRODUCT
+  // =================================================
+  const product = MOCK_PRODUCTS_STORE.find(
+    (p) => p.id === productId
+  );
+
+  if (!product) {
+    return res.status(404).json({
+      status: "error",
+      message: "Product not found",
+    });
+  }
+
+  // =================================================
+  // 3. MATCH PRICING PROFILES
+  // =================================================
+  const matchedProfiles = MOCK_PRICING_PROFILES_STORE.filter(
+    (profile) => {
+      const hasGroupMatch = profile.customerGroupIds?.some((id: string) =>
+        customerGroupIds.includes(id)
+      );
+
+      const hasProductMatch = profile.productIds?.includes(productId as string);
+
+      return hasGroupMatch && hasProductMatch;
+    }
+  );
+
+  // =================================================
+  // 4. SORT (priority DESC → price ASC)
+  // =================================================
+  const sorted = matchedProfiles.sort((a, b) => {
+    const priorityDiff = (b.priority ?? 0) - (a.priority ?? 0);
+
+    if (priorityDiff !== 0) {
+      return priorityDiff; // higher priority first
+    }
+
+    // fallback: lower product price wins
+    return product.price;
+  });
+
+  // =================================================
+  // 5. BEST MATCH
+  // =================================================
+  const bestMatch = sorted[0] ?? null;
+
+  // =================================================
+  // 6. RESPONSE
+  // =================================================
+  return res.json({
+    status: "ok",
+    data: {
+      customerId,
+      productId,
+      productPrice: product.price,
+      matchedProfiles: sorted,
+      bestMatch,
+    },
+  });
+});
+⚠️ IMPORTANT FIX (your sorting logic issue)
+
+This part in my previous explanation is critical:
+
+❌ WRONG idea:
+return product.price;
+
+That doesn’t compare a vs b.
+
+✅ Correct price sorting (IMPORTANT)
+
+If each profile affects price, you should compute:
+
+Example:
+const priceA = product.price * adjustmentA;
+const priceB = product.price * adjustmentB;
+
+return priceA - priceB;
+🚀 Better REAL version (recommended)
+
+If you want correct business logic:
+
+const sorted = matchedProfiles.sort((a, b) => {
+  const priorityDiff = (b.priority ?? 0) - (a.priority ?? 0);
+  if (priorityDiff !== 0) return priorityDiff;
+
+  const priceA =
+    a.adjustmentMode === "FIXED"
+      ? product.price + a.adjustmentValue
+      : product.price * (1 + a.adjustmentValue / 100);
+
+  const priceB =
+    b.adjustmentMode === "FIXED"
+      ? product.price + b.adjustmentValue
+      : product.price * (1 + b.adjustmentValue / 100);
+
+  return priceA - priceB; // lowest price wins
+});
+🧠 Final behavior
+
+You now have:
+
+Step order:
+Filter matching pricing rules
+Sort by:
+priority (highest first)
+adjusted price (lowest first)
+Return best rule
+🚀 If you want next step (this gets powerful)
+
+I can help you turn this into a real pricing engine system:
+
+explainable pricing (why this price was chosen)
+conflict resolution rules
+segment weighting (customer + group + product + time)
+Prisma relational schema version
+
+Just say 👍
+
+before sorting const sorted = matchedProfiles.sort((a, b) => {
+    const priorityDiff = (b.priority ?? 0) - (a.priority ?? 0);
+
+    if (priorityDiff !== 0) {
+      return priorityDiff; // higher priority first
+    }
+
+    // fallback: lower product price wins
+    return product.price;
+  });
+new product price has to be calculated :
+there are afew factors:adjustmentMode: AdjustmentMode;
+  adjustmentIncrementMode: AdjustmentIncrementMode;
+  adjustmentValue: number;
+
+
+Good — now you’re implementing the core of a pricing engine.
+
+You’re no longer just sorting — you need to compute an effective price per profile first, then sort.
+
+🧠 What you need to do
+
+For each PricingProfile, compute:
+
+finalPrice = product.price adjusted by rules
+
+Based on:
+
+adjustmentMode: FIXED | PERCENTAGE
+adjustmentIncrementMode: INCREASE | DECREASE
+adjustmentValue: number
+Here’s the cleanest way to add Swagger to your Express + TypeScript backend.
+
+You’ll get:
+
+/api-docs UI
+live API testing
+typed request schemas
+professional backend setup
+🚀 Step 1 — Install packages
+
+In your backend:
+
+npm install swagger-ui-express swagger-jsdoc
+
+Types:
+
+npm install -D @types/swagger-ui-express
+🚀 Step 2 — Create swagger.ts
+
+Create:
+
+src/swagger.ts
+✅ src/swagger.ts
+import swaggerJsdoc from "swagger-jsdoc";
+
+const options: swaggerJsdoc.Options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Pricing Engine API",
+      version: "1.0.0",
+      description: "FOBOH Engineering Challenge API",
+    },
+    servers: [
+      {
+        url: "http://localhost:3001",
+      },
+    ],
+  },
+
+  // files containing annotations
+  apis: ["./src/**/*.ts"],
+};
+
+export const swaggerSpec = swaggerJsdoc(options);
+🚀 Step 3 — Add Swagger UI to Express
+
+In your index.ts:
+
+✅ Import
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
+✅ Add middleware
+
+Put BEFORE app.listen
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
+🚀 Step 4 — Add Swagger comments to APIs
+
+Example:
+
+/**
+ * @swagger
+ * /pricing-profile:
+ *   post:
+ *     summary: Create pricing profile
+ *     tags:
+ *       - PricingProfile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               adjustmentMode:
+ *                 type: string
+ *                 example: fixed
+ *               adjustmentIncrementMode:
+ *                 type: string
+ *                 example: increase
+ *               adjustmentValue:
+ *                 type: number
+ *                 example: 10
+ *               productIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               customerGroupIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               customerIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               priority:
+ *                 type: number
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+app.post("/pricing-profile", (req, res) => {
+🚀 Step 5 — Start backend
+npm run dev
+
+Open:
+
+👉 http://localhost:3001/api-docs
+
+🎉 You now have
+interactive API explorer
+request body forms
+endpoint documentation
+test buttons
+production-style backend docs
+🧠 Recommended structure (important)
+src/
+  index.ts
+  swagger.ts
+  routes/
+    pricingProfile.ts
+    customer.ts
+
+Swagger works MUCH better when routes are separated.
+
+⚡ BIG improvement (recommended next)
+
+Right now Swagger comments are manual.
+
+A cleaner modern stack is:
+
+🔥 Zod + Swagger generation
+
+You define schema ONCE:
+
+const PricingProfileSchema = z.object(...)
+
+Then:
+
+validation
+typing
+swagger docs
+
+all auto-generated.
+
+Very professional.
+Yep — TypeScript is telling you:
+
+swagger-jsdoc has no built-in types installed.
+
+The fix is exactly what the error says.
+
+Run:
+
+npm install -D @types/swagger-jsdoc
+✅ After installing
+
+Restart TS server / backend:
+
+npm run dev
+
+or in VSCode:
+
+Ctrl + Shift + P
+→ TypeScript: Restart TS Server
+✅ Then this works correctly
+import swaggerJsdoc from "swagger-jsdoc";
+⚠️ If types STILL fail
+
+Sometimes swagger-jsdoc import style conflicts with TS config.
+
+Use this instead:
+
+import swaggerJSDoc from "swagger-jsdoc";
+
+Then:
+
+const swaggerSpec = swaggerJSDoc(options);
+⚡ Important TS config fix (recommended)
+
+In tsconfig.json, ensure:
+
+{
+  "compilerOptions": {
+    "esModuleInterop": true
+  }
+}
+
+Without this, many CommonJS packages behave weirdly in TS.
+
+🚀 Final working combo
+Install
+npm install swagger-ui-express swagger-jsdoc
+npm install -D @types/swagger-ui-express @types/swagger-jsdoc
+tsconfig
+{
+  "compilerOptions": {
+    "esModuleInterop": true
+  }
+}
+import
+import swaggerUi from "swagger-ui-express";
+import swaggerJSDoc from "swagger-jsdoc";
+Then open
+
+👉 http://localhost:3001/api-docs
+
+You should see Swagger UI running.
+
+create swagger for each api
+
+I created a full Swagger annotation document for all your backend APIs, including:
+
+/api/product/filters
+/api/products
+/customer
+/customergroup
+/pricing-profile
+/pricing-profile/match
+
+It also includes:
+
+Swagger setup
+swagger.ts
+index.ts integration
+install commands
+requestBody schemas
+query parameter docs
+response schemas
+
+You can now paste these directly into your backend routes and open:
+
+http://localhost:3001/api-docs
+add a delete api for /pricing-profile delete by id
+Swagger Annotations For Backend Apis
+Swagger Annotations for Backend APIs
+
+Add these comments directly above each Express route.
+
+GET /api/product/filters
+/**
+ * @swagger
+ * /api/product/filters:
+ *   get:
+ *     summary: Get product filter values
+ *     tags:
+ *       - Product
+ *     responses:
+ *       200:
+ *         description: Product filters fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 value:
+ *                   type: object
+ *                   properties:
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     segments:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     brands:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ */
+app.get("/api/product/filters", (_req, res) => {
+  res.json({
+    status: "ok",
+    value: { categories, segments, brands },
+  });
+});
+
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Get products with filters
+ *     tags:
+ *       - Product
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: sku
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: segment
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: brand
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Products fetched successfully
+ */
+app.get("/api/products", (req, res) => {
+  // implementation
+});
+
+/**
+ * @swagger
+ * /customer:
+ *   get:
+ *     summary: Get customers by id or name
+ *     tags:
+ *       - Customer
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customers fetched successfully
+ */
+app.get("/customer", (req, res) => {
+  // implementation
+});
+
+/**
+ * @swagger
+ * /customergroup:
+ *   get:
+ *     summary: Get customer groups by id or name
+ *     tags:
+ *       - CustomerGroup
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer groups fetched successfully
+ */
+app.get("/customergroup", (req, res) => {
+  // implementation
+});
+
+/**
+ * @swagger
+ * /pricing-profile:
+ *   post:
+ *     summary: Create pricing profile
+ *     tags:
+ *       - PricingProfile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - adjustmentMode
+ *               - adjustmentIncrementMode
+ *               - adjustmentValue
+ *               - productIds
+ *             properties:
+ *               adjustmentMode:
+ *                 type: string
+ *                 enum:
+ *                   - fixed
+ *                   - dynamic
+ *                 example: fixed
+ *               adjustmentIncrementMode:
+ *                 type: string
+ *                 enum:
+ *                   - increase
+ *                   - decrease
+ *                 example: decrease
+ *               adjustmentValue:
+ *                 type: number
+ *                 example: 10
+ *               productIds:
+ *                 type: array
+});
+
+/**
+ * @swagger
+ * /pricing-profile/{id}:
+ *   delete:
+ *     summary: Delete pricing profile by id
+ *     tags:
+ *       - PricingProfile
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Pricing profile deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ */
+app.delete("/pricing-profile/:id", (req, res) => {
+  const { id } = req.params;
+
+  const index = MOCK_PRICING_PROFILES_STORE.findIndex(p => p.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: "Pricing profile not found"
+    });
+  }
+});
+
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
+
+Swagger URL
+http://localhost:3001/api-docs
+
+Added the DELETE /pricing-profile/:id API with:
+
+Swagger documentation
+safe in-memory delete logic
+404 handling if not found
+returns updated store
+
+Now your pricing profile system supports full CRUD:
+
+✅ Create
+✅ Read (match engine)
+✅ Delete
+
+If you want next step, I can help you 
+add UPDATE /pricing-profile/:id or 
+make this fully Prisma-ready.

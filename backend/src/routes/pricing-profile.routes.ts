@@ -5,28 +5,25 @@ import {
   MOCK_PRICING_PROFILES_STORE,
   MOCK_PRODUCTS_STORE,
 } from "../store/db";
-import { CustomerGroup } from "../model/Customer";
-import { PricingProfile } from "../model/PricingProfile";
-import { calculatePrice, resolvePrice } from "../services/pricing.service";
-import { createPricingProfile, deletePricingProfile } from "./helper";
+import { createPricingProfile, deletePricingProfile, resolvePrice } from "../services/pricing.service";
 
 const router = Router();
 
-/**
- * @swagger
- * /api/pricing-profile:
- *   get:
- *     summary: Get all pricing profiles
- *     responses:
- *       200:
- *         description: List of pricing profiles
- */
-router.get("/pricing-profile", (_req, res) => {
-  res.json({
-    status: "ok",
-    value: MOCK_PRICING_PROFILES_STORE,
-  });
-});
+// /**
+//  * @swagger
+//  * /api/pricing-profile/all:
+//  *   get:
+//  *     summary: Get all pricing profiles
+//  *     responses:
+//  *       200:
+//  *         description: List of pricing profiles
+//  */
+// router.get("/pricing-profile/all", (_req, res) => {
+//   res.json({
+//     status: "ok",
+//     value: MOCK_PRICING_PROFILES_STORE,
+//   });
+// });
 
 /**
  * @swagger
@@ -83,8 +80,8 @@ router.post("/pricing-profile", (req, res) => {
     customerIds = [],
     priority,
     allProducts,
-    name,
   } = req.body;
+
   // Validation
   if (
     !adjustmentMode ||
@@ -107,10 +104,9 @@ router.post("/pricing-profile", (req, res) => {
     customerIds,
     priority,
     allProducts,
-    name,
   });
 
-  return res.status(201).json({
+  return res.status(200).json({
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
     debug: {
@@ -121,6 +117,8 @@ router.post("/pricing-profile", (req, res) => {
     }
   });
 });
+
+
 /**
  * @swagger
  * /api/pricing-profile/match:
@@ -155,11 +153,12 @@ router.get("/pricing-profile/match", (req, res) => {
     });
   }
 
+  //Replace with real DB calls in production
   const customer = MOCK_CUSTOMERS_STORE.find((c) => c.id === customerId);
   if (!customer) {
     return res.status(404).json({ status: "error", message: "Customer not found" });
   }
-
+  //Replace with real DB calls in production
   const product = MOCK_PRODUCTS_STORE.find((p) => p.id === productId);
   if (!product) {
     return res.status(404).json({ status: "error", message: "Product not found" });
@@ -374,6 +373,7 @@ router.put("/pricing-profile", (req, res) => {
     });
   }
 
+  // Replace with real DB calls in production
   const existingProfile = MOCK_PRICING_PROFILES_STORE.find(
     (p) => p.id === id
   );
@@ -387,20 +387,24 @@ router.put("/pricing-profile", (req, res) => {
 
   // preserve createdAt
   const createdAt = existingProfile.createdAt;
+  const autoCustomerGroupId = MOCK_CUSTOMER_GROUPS_STORE
+    .filter((g) => existingProfile.customerGroupIds.includes(g.id))
+    .find((g)=>g.type === "auto")?.id;
 
   // remove old state
   deletePricingProfile(id);
 
-  // rebuild fresh state
+  // replace with real DB calls in production
   const newProfile = createPricingProfile({
     ...req.body,
     id,
     createdAt,
-  });
+  }, autoCustomerGroupId);
 
   return res.status(200).json({
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
+    result: newProfile,
     debug: {
       customers: MOCK_CUSTOMERS_STORE,
       customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
