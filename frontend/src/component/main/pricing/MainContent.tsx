@@ -4,29 +4,33 @@ import PriceProfileSectionAccordion from "./PriceProfileSectionAccordion";
 import SetupPriceProfileSectionAccordion from "./setup/SetupPriceProfileSectionAccordion";
 import { FilterOptions, ProductFilters } from "./setup/ProductSearchSection";
 import { getProducts } from "../../../api/getProducts";
-import { Customer, CustomerGroup, Product } from "../../../type/Pricing";
+import { Customer, CustomerGroup, PricingProfile, Product } from "../../../type/Pricing";
 import { getProductFilters } from "../../../api/getProductFilters";
-import CalculatePriceProfileSectionAccordion from "./calculate/CaculatePriceProfileSectionAccordion";
+import CalculatePriceProfileSectionAccordion, { PriceProfileOptions } from "./calculate/CaculatePriceProfileSectionAccordion";
 import SectionActions from "../shared/SectionActions";
 import CustomerPriceProfileSectionAccordion from "./customer/CustomerPriceProfileSectionAccordion";
 import ReviewPriceProfileSectionAccordion from "./review/ReviewPriceProfileSectionAccordion";
+import { createPricingProfile } from "../../../api/createPricingProfile";
 
 const PricingProfileSteps = ["Product", "Customer", "Review"] as const;
+const defaultProductFilters: ProductFilters = {
+  title: "",
+  sku: "",
+  subCategory: "",
+  segment: "",
+  brand: "",
+};
 export default function MainContent() {
   const [currentStep, setCurrentStep] = useState<number>(0);
-
   const [products, setProducts] = useState<Product[]>([]);
-  const [productFilters, setProductFilters] = useState<ProductFilters>({
-    title: "",
-    sku: "",  
-    subCategory: "",
-    segment: "",
-    brand: "",
-  });
+  const [productFilters, setProductFilters] = useState<ProductFilters>(defaultProductFilters);
   const [filters, setFilters] = useState<FilterOptions | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-
   const [selectedCustomer, setSelectedCustomer] = useState<Customer[]>([]);
+  const [priceProfileOptions, setPriceProfileOptions] = useState<PriceProfileOptions | null>(null);
+  const [selectedCustomerGroups, setSelectedCustomerGroups] = useState<CustomerGroup[]>([]);
+  const[savedPriceProfiles, setSavedPriceProfiles] = useState<PricingProfile[]>([]);
+
   const handleToggleCustomer = (customer: Customer) => {
       setSelectedCustomer((prev) =>
           prev.map(x=>x.id).includes(customer.id)
@@ -34,7 +38,7 @@ export default function MainContent() {
           : [...prev, customer]
       );
   };
-  const [selectedCustomerGroups, setSelectedCustomerGroups] = useState<CustomerGroup[]>([]);
+  
   const handleToggleCustomerGroup = (customerGroup: CustomerGroup) => {
       setSelectedCustomerGroups((prev) =>
           prev.map(x=>x.id).includes(customerGroup.id)
@@ -42,6 +46,36 @@ export default function MainContent() {
           : [...prev, customerGroup]
       );
   }
+
+  const handlePriceProfileSave = async () => { 
+    try {
+      if (!priceProfileOptions) throw new Error("Price profile options not set");
+      
+      const result = await createPricingProfile({
+      adjustmentMode: priceProfileOptions.adjustmentMode,
+      adjustmentIncrementMode: priceProfileOptions.adjustmentIncrementMode,
+      adjustmentValue: priceProfileOptions.adjustmentValue,
+
+      productIds: selectedProducts.map((p) => p.id),
+      customerGroupIds: selectedCustomerGroups.map((g) => g.id),
+      customerIds: selectedCustomer.map((c) => c.id),
+
+      priority: 1,
+    });
+
+    console.log("Saved:", result);
+    setSavedPriceProfiles(result);
+    setProductFilters(defaultProductFilters);
+    setSelectedProducts([]);
+    setSelectedCustomer([]);
+    setSelectedCustomerGroups([]);
+    setPriceProfileOptions(null);
+      setCurrentStep(0);
+    
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   useEffect(() => {
     async function loadFilters() {
@@ -77,7 +111,9 @@ export default function MainContent() {
 
         {/* Section 1 */}
         <div className="mt-4">
-          <PriceProfileSectionAccordion />
+          {savedPriceProfiles.map((profile) => (
+            <PriceProfileSectionAccordion key={profile.id} priceProfile={profile} />
+          ))}
         </div>
 
         {/* Section 2 */}
@@ -92,7 +128,7 @@ export default function MainContent() {
               setSelectedProducts={setSelectedProducts}
             />}
 
-            <CalculatePriceProfileSectionAccordion selectedProducts={selectedProducts} />
+            <CalculatePriceProfileSectionAccordion selectedProducts={selectedProducts} setPriceProfileOptions={setPriceProfileOptions} />
           </>}
 
           {currentStep === 1 && <>
@@ -102,7 +138,9 @@ export default function MainContent() {
           </>}
 
           {currentStep === 2 && <>
-           <ReviewPriceProfileSectionAccordion selectedCustomer={selectedCustomer} selectedCustomerGroup={selectedCustomerGroups} selectedProducts={selectedProducts} />
+            <ReviewPriceProfileSectionAccordion priceProfileOptions={priceProfileOptions}
+              selectedCustomer={selectedCustomer} selectedCustomerGroup={selectedCustomerGroups}
+              selectedProducts={selectedProducts} handlePriceProfileSave={handlePriceProfileSave}/>
           </>}
 
           <div className="mt-4">

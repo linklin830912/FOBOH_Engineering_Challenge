@@ -1,3 +1,4 @@
+const API_URL = import.meta.env.VITE_API_URL;
 export async function getCustomer(name?: string, id?: string) {
     const params = new URLSearchParams();
 
@@ -10,11 +11,10 @@ export async function getCustomer(name?: string, id?: string) {
       }
       console.log("Fetching customers with params:", params.toString());
       const response = await fetch(
-        `http://localhost:3001/customer?${params.toString()}`
+        `${API_URL}/customer?${params.toString()}`
       );
 
         const data = await response.json();
-        console.log("Fetched customers with filters", data.value);
     
     return data.value;
 }

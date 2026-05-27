@@ -1,14 +1,4 @@
-export type Customer = {
-  id: string;
-  name: string;
-  groupIds?: string[];
-};
-
-export type CustomerGroup = {
-  id: string;
-  name: string;
-  customerIds: string[];
-};
+import { Customer, CustomerGroup } from "../model/Customer";
 
 export const MOCK_CUSTOMER_GROUPS: CustomerGroup[] = [
   {

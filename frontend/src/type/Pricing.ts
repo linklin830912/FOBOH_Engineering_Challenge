@@ -1,20 +1,15 @@
-export enum AdjustmentType {
-  FIXED = "FIXED",
-  PERCENTAGE = "PERCENTAGE",
-}
-
-export enum AdjustmentDirection {
-  INCREASE = "INCREASE",
-  DECREASE = "DECREASE",
-}
+import { AdjustmentIncrementMode } from "../component/main/pricing/calculate/AdjustmentIncrementModeSelector";
+import { AdjustmentMode } from "../component/main/pricing/calculate/AdjustmentModeSelector";
 
 export type PricingProfile = {
   id: string;
   name: string;
 
-  adjustmentType: AdjustmentType;
-  direction: AdjustmentDirection;
-  value: number;
+  adjustmentMode: AdjustmentMode;
+  adjustmentIncrementMode: AdjustmentIncrementMode;
+  adjustmentValue: number;
+  customerGroupIds: string[];
+  productIds: string[];
 
   priority: number;
   isActive: boolean;
@@ -43,4 +38,5 @@ export type CustomerGroup = {
   id: string;
   name: string;
   customerIds: string[];
+  priceProfileIds?: string[];
 };

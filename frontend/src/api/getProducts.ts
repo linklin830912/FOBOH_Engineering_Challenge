@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getProducts(filters: {
   name?: string;
   sku?: string;
@@ -12,7 +14,7 @@ export async function getProducts(filters: {
   });
 
   const res = await fetch(
-    `http://localhost:3001/api/products?${params.toString()}`
+    `${API_URL}/api/products?${params.toString()}`
   );
 
   if (!res.ok) {

@@ -1,20 +1,15 @@
-export enum AdjustmentType {
-  FIXED = "FIXED",
-  PERCENTAGE = "PERCENTAGE",
-}
-
-export enum AdjustmentDirection {
-  INCREASE = "INCREASE",
-  DECREASE = "DECREASE",
-}
+export type AdjustmentMode = "fixed" | "dynamic";
+export type AdjustmentIncrementMode = "increase" | "decrease";
 
 export type PricingProfile = {
   id: string;
   name: string;
 
-  adjustmentType: AdjustmentType;
-  direction: AdjustmentDirection;
-  value: number;
+  adjustmentMode: AdjustmentMode;
+  adjustmentIncrementMode: AdjustmentIncrementMode;
+  adjustmentValue: number;
+  customerGroupIds: string[];
+  productIds: string[];
 
   priority: number;
   isActive: boolean;

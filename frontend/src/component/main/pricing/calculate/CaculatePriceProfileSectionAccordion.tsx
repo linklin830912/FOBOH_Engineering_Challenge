@@ -6,13 +6,21 @@ import NewPriceTable, { ProductPriceRow } from "./NewPriceTable";
 import { Product } from "../../../../type/Pricing";
 import { useEffect, useState } from "react";
 
+export type PriceProfileOptions = {
+  adjustmentMode: AdjustmentMode;
+  adjustmentIncrementMode: AdjustmentIncrementMode;
+  adjustmentValue: number;
+};
+
 interface CalculatePriceProfileSectionAccordionProps {
   selectedProducts: Product[];
+  setPriceProfileOptions: (options: PriceProfileOptions) => void;
 }
-export default function CalculatePriceProfileSectionAccordion({ selectedProducts }: CalculatePriceProfileSectionAccordionProps) {
+export default function CalculatePriceProfileSectionAccordion({ selectedProducts, setPriceProfileOptions }: CalculatePriceProfileSectionAccordionProps) {
 
   const [adjustmentMode, setAdjustmentMode] = useState<AdjustmentMode>("fixed");
   const [adjustmentIncrementMode, setAdjustmentIncrementMode] = useState<AdjustmentIncrementMode>("increase");
+  const [adjustmentValue, setAdjustmentValue] = useState<number>(0);
   
   const [productPriceRows, setProductPriceRows] = useState<ProductPriceRow[]>([]);
 
@@ -30,7 +38,16 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
         setProductPriceRows(rows);
     }, [selectedProducts, adjustmentMode, adjustmentIncrementMode]);
   
+  useEffect(() => {
+    setPriceProfileOptions({
+      adjustmentMode,
+      adjustmentIncrementMode,
+      adjustmentValue,
+    });
+  }, [adjustmentMode, adjustmentIncrementMode, adjustmentValue, setPriceProfileOptions]);
+
   const onAdjustmentChange = (id: string, value: number) => {
+    setAdjustmentValue(value);
     setProductPriceRows((prevRows) =>
       prevRows.map((row) =>
         // row.id === id ? { ...row, adjustment: value, newPrice: calculateNewPrice(row, value) } : row

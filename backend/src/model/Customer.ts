@@ -8,4 +8,5 @@ export type CustomerGroup = {
   id: string;
   name: string;
   customerIds: string[];
+  priceProfileIds?: string[];
 };
