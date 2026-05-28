@@ -12,7 +12,6 @@ export async function createPricingProfile(payload: CreatePricingProfileRequest)
   });
 
   const data = await response.json();
-console.log("Created pricing profile, new list:", data.debug);
   if (!response.ok) {
     throw new Error(data?.message || "Failed to create pricing profile");
   }

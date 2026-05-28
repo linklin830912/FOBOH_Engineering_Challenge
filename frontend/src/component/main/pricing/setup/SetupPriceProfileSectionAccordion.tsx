@@ -34,7 +34,7 @@ export default function SetupPriceProfileSectionAccordion({
       <div className="flex flex-col justify-center items-start gap-[6px] p-0">
         <input
           className="w-full text-sm text-[#637381] bg-transparent outline-none"
-          defaultValue="Accordion details..."
+          defaultValue="Details..."
         />
       </div>
 

@@ -113,7 +113,7 @@ export default function PriceProfileSectionAccordion({ products,filters, pricePr
       <div className="text-sm text-[#637381]">
         You've selected{" "}
         <span className="font-medium text-[#212B36]">
-          {priceProfile.productIds.length}
+          {priceProfile.allProducts ? "All" : priceProfile.productIds.length}
         </span>{" "}
         Products
       </div>

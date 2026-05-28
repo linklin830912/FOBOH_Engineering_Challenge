@@ -1,12 +1,9 @@
+import { GetPricingProfileMatchRequest } from "../type/Api";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-export type PricingProfileMatchQuery = {
-  customerId: string;
-  productId: string;
-};
-
 export async function getPricingProfileMatch(
-  query: PricingProfileMatchQuery
+  query: GetPricingProfileMatchRequest
 ) {
   const params = new URLSearchParams();
 

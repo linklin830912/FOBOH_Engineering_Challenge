@@ -163,9 +163,6 @@ router.patch("/products/:id/price", (req, res) => {
   return res.status(200).json({
     status: "ok",
     value: updatedProduct,
-    debug: {
-      allProducts: MOCK_PRODUCTS_STORE,
-    },
   });
 });
 

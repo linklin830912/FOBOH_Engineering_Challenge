@@ -8,6 +8,5 @@ export async function getProductFilters() {
   }
 
     const data = await res.json();
-    console.log("Fetched product filters:", data.value);
-  return data.value; // { categories, segments, brands }
+  return data.value;
 }

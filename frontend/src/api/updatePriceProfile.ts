@@ -19,6 +19,5 @@ export async function updatePriceProfile(
   if (!response.ok) {
     throw new Error(data?.message || "Failed to update pricing profile");
   }
-  console.log("Updated pricing profile, new list:", data.debug);
   return data.value;
 }

@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Customer, CustomerGroup, Product } from "../../../../type/Pricing";
 import { PriceProfileOptions } from "../calculate/CaculatePriceProfileSectionAccordion";
+import { ProductScope } from "../setup/ProductScopeSelector";
 
 interface ReviewPriceProfileSectionAccordionProps { 
   priceProfileOptions: PriceProfileOptions | null;
+  prodcutscope: ProductScope;
     selectedProducts: Product[];
     selectedCustomer: Customer[];
   selectedCustomerGroup: CustomerGroup[];
   handlePriceProfileSave: () => void;
 }
-export default function ReviewPriceProfileSectionAccordion({ priceProfileOptions,  selectedProducts,
+export default function ReviewPriceProfileSectionAccordion({ priceProfileOptions, prodcutscope, selectedProducts,
     handlePriceProfileSave
  }: ReviewPriceProfileSectionAccordionProps) {
 
@@ -45,7 +47,7 @@ export default function ReviewPriceProfileSectionAccordion({ priceProfileOptions
         <div className="flex flex-col gap-[6px]">
 
           <div className="text-sm text-[#637381]">
-            You’ve selected {selectedProducts.length} Products
+            You've selected {prodcutscope === "all" ? "All" : selectedProducts.length} Products
           </div>
 
           <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[4px]">

@@ -88,8 +88,6 @@ export default function CalculatePriceProfileSectionAccordion({ selectedProducts
           adjustmentMode={adjustmentMode}
           adjustmentIncrementMode={adjustmentIncrementMode}
           productPriceRows={productPriceRows}
-          onToggleRow={(rowId) => console.log("Toggled row:", rowId)}
-          onRefresh={() => console.log("Refreshed table")}
           onAdjustmentChange={onAdjustmentChange} />
       </div>
     </div>

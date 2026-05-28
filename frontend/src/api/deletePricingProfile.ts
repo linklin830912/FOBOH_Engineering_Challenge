@@ -10,6 +10,5 @@ export async function deletePricingProfile(id: string) {
   if (!response.ok) {
     throw new Error(data?.message || "Failed to delete pricing profile");
   }
-  console.log("Deleted pricing profile:", data.debug);
   return data.value;
 }

@@ -19,8 +19,6 @@ type NewPriceTableProps = {
     adjustmentMode: AdjustmentMode;
     adjustmentIncrementMode: AdjustmentIncrementMode;
   productPriceRows: ProductPriceRow[];
-  onToggleRow: (id: string) => void;
-    onRefresh: () => void;
   onAdjustmentChange: (
   id: string,
   value: number
@@ -31,8 +29,6 @@ export default function NewPriceTable({
     adjustmentMode,
     adjustmentIncrementMode,
   productPriceRows,
-  onToggleRow,
-  onRefresh,
   onAdjustmentChange
 }: NewPriceTableProps) {
 
@@ -41,28 +37,12 @@ export default function NewPriceTable({
   return (
     <div className="flex flex-col justify-center items-start gap-[12px] w-[1019px]">
 
-      {/* Refresh */}
-      <div className="flex flex-row justify-end items-center gap-[8px] w-[1014px] pb-[8px]">
-        <button
-          onClick={onRefresh}
-          className="flex items-center gap-[8px]"
-        >
-          <span className="text-sm font-medium text-[#563FE3]">
-            Refresh New Price Table
-          </span>
-
-          <div className="flex items-center justify-center w-[20px] h-[20px] rounded-full bg-[#563FE3]">
-            <ArrowPathIcon className="w-[14px] h-[14px] text-white" />
-          </div>
-        </button>
-      </div>
-
       {/* Header */}
       <div className="flex flex-row items-center w-[1014px] h-[20px]">
 
-        <div className="w-[40px] flex justify-center">
+        {/* <div className="w-[40px] flex justify-center">
           <input type="checkbox" />
-        </div>
+        </div> */}
 
         <div className="w-[163px] text-sm text-[#637381]">
           Product Title
@@ -99,13 +79,13 @@ export default function NewPriceTable({
           >
 
             {/* Checkbox */}
-            <div className="flex items-center justify-center w-[40px] border border-[#F0F0F0]">
+            {/* <div className="flex items-center justify-center w-[40px] border border-[#F0F0F0]">
               <input
                 type="checkbox"
                 checked={row.checked}
                 onChange={() => onToggleRow(row.id)}
               />
-            </div>
+            </div> */}
 
             {/* Product Title */}
             <div className="flex items-center px-[12px] w-[163px] border border-[#F0F0F0]">

@@ -5,25 +5,9 @@ import {
   MOCK_PRICING_PROFILES_STORE,
   MOCK_PRODUCTS_STORE,
 } from "../store/db";
-import { createPricingProfile, deletePricingProfile, resolvePrice } from "../services/pricing.service";
+import { createPricingProfile, deletePricingProfile, GetPricingProfileMatchRequest, resolvePrice } from "../services/pricing.service";
 
 const router = Router();
-
-// /**
-//  * @swagger
-//  * /api/pricing-profile/all:
-//  *   get:
-//  *     summary: Get all pricing profiles
-//  *     responses:
-//  *       200:
-//  *         description: List of pricing profiles
-//  */
-// router.get("/pricing-profile/all", (_req, res) => {
-//   res.json({
-//     status: "ok",
-//     value: MOCK_PRICING_PROFILES_STORE,
-//   });
-// });
 
 /**
  * @swagger
@@ -45,30 +29,64 @@ const router = Router();
  *               adjustmentMode:
  *                 type: string
  *                 enum: [fixed, dynamic]
+ *
  *               adjustmentIncrementMode:
  *                 type: string
  *                 enum: [increase, decrease]
+ *
  *               adjustmentValue:
  *                 type: number
+ *
  *               productIds:
  *                 type: array
  *                 items:
  *                   type: string
+ *
  *               customerGroupIds:
  *                 type: array
  *                 items:
  *                   type: string
+ *
  *               customerIds:
  *                 type: array
  *                 items:
  *                   type: string
+ *
  *               priority:
  *                 type: number
+ *               allProducts:
+ *                 type: boolean
+ *                 example: false
+ *
  *     responses:
  *       200:
- *         description: Created pricing profile
+ *         description: Pricing profile created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 value:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/PricingProfile'
+ *
  *       400:
  *         description: Invalid request body
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: Invalid request body
  */
 router.post("/pricing-profile", (req, res) => {
   const {
@@ -95,11 +113,17 @@ router.post("/pricing-profile", (req, res) => {
     });
   }
 
-  const newProfile = createPricingProfile({
+  let finalProductIds = productIds;
+  if (allProducts) {
+    // Logic for handling all products
+    finalProductIds = MOCK_PRODUCTS_STORE.map((p) => p.id);
+  }
+
+  createPricingProfile({
     adjustmentMode,
     adjustmentIncrementMode,
     adjustmentValue,
-    productIds,
+    productIds: finalProductIds,
     customerGroupIds,
     customerIds,
     priority,
@@ -109,12 +133,6 @@ router.post("/pricing-profile", (req, res) => {
   return res.status(200).json({
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
-    debug: {
-      result: newProfile,
-      customers: MOCK_CUSTOMERS_STORE,
-      customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
-      pricingProfiles: MOCK_PRICING_PROFILES_STORE,
-    }
   });
 });
 
@@ -137,14 +155,14 @@ router.post("/pricing-profile", (req, res) => {
  *           type: string
  *     responses:
  *       200:
- *         description: Resolved price with source profile and reason
+ *         description: Resolved price with source profile and reason, return best price and PricingProfile match details
  *       400:
  *         description: Missing customerId or productId
  *       404:
  *         description: Customer or product not found
  */
 router.get("/pricing-profile/match", (req, res) => {
-  const { customerId, productId } = req.query;
+  const { customerId, productId } = req.query as GetPricingProfileMatchRequest;
 
   if (!customerId || !productId) {
     return res.status(400).json({
@@ -175,7 +193,7 @@ router.get("/pricing-profile/match", (req, res) => {
 
 /**
  * @swagger
- * /api/pricing-profile/:id:
+ * /api/pricing-profile/{id}:
  *   delete:
  *     summary: Delete a pricing profile by ID
  *     tags: [Pricing Profile]
@@ -184,7 +202,7 @@ router.get("/pricing-profile/match", (req, res) => {
  *       - in: path
  *         name: id
  *         required: true
- *         description: UUID of the pricing profile to delete
+ *         description: ID of the pricing profile to delete
  *         schema:
  *           type: string
  *           format: uuid
@@ -200,7 +218,9 @@ router.get("/pricing-profile/match", (req, res) => {
  *                   type: string
  *                   example: ok
  *                 value:
- *                   $ref: '#/components/schemas/PricingProfile'
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/PricingProfile'
  *       400:
  *         description: Invalid ID format
  *         content:
@@ -213,7 +233,7 @@ router.get("/pricing-profile/match", (req, res) => {
  *                   example: error
  *                 message:
  *                   type: string
- *                   example: Invalid id format. Expected UUID
+ *                   example: Invalid id format
  *       404:
  *         description: Pricing profile not found
  *         content:
@@ -251,12 +271,6 @@ router.delete("/pricing-profile/:id", (req, res) => {
   return res.status(200).json({
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
-    debug: {
-      result: deletedProfile,
-      customers: MOCK_CUSTOMERS_STORE,
-      customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
-      pricingProfiles: MOCK_PRICING_PROFILES_STORE,
-    },
   });
 });
 
@@ -281,8 +295,8 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *             properties:
  *               id:
  *                 type: string
- *                 format: uuid
- *                 example: "pricing-profile-1"
+ *                 format: PP_Date
+ *                 example: "PP_20240901094500"
  *
  *               name:
  *                 type: string
@@ -290,11 +304,11 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *
  *               adjustmentMode:
  *                 type: string
- *                 example: "FIXED"
+ *                 example: "fixed"
  *
  *               adjustmentIncrementMode:
  *                 type: string
- *                 example: "INCREASE"
+ *                 example: "increase"
  *
  *               adjustmentValue:
  *                 type: number
@@ -314,7 +328,7 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *                 type: number
  *                 example: 1
  *
- *               isActive:
+ *               allProducts:
  *                 type: boolean
  *                 example: true
  *
@@ -329,9 +343,10 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *                 status:
  *                   type: string
  *                   example: ok
- *
  *                 value:
- *                   $ref: '#/components/schemas/PricingProfile'
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/PricingProfile'
  *
  *       400:
  *         description: Invalid request payload
@@ -343,7 +358,6 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *                 status:
  *                   type: string
  *                   example: error
- *
  *                 message:
  *                   type: string
  *                   example: Pricing profile id is required
@@ -358,7 +372,6 @@ router.delete("/pricing-profile/:id", (req, res) => {
  *                 status:
  *                   type: string
  *                   example: error
- *
  *                 message:
  *                   type: string
  *                   example: Pricing profile not found
@@ -405,11 +418,6 @@ router.put("/pricing-profile", (req, res) => {
     status: "ok",
     value: MOCK_PRICING_PROFILES_STORE,
     result: newProfile,
-    debug: {
-      customers: MOCK_CUSTOMERS_STORE,
-      customerGroups: MOCK_CUSTOMER_GROUPS_STORE,
-      pricingProfiles: MOCK_PRICING_PROFILES_STORE,
-    }
   });
 });
 

@@ -21,6 +21,17 @@ export function calculatePrice(basePrice: number, profile: PricingProfile): numb
   return Number(Math.max(0, adjusted).toFixed(2));
 }
 
+export type GetPricingProfileMatchRequest = {
+    customerId: string;
+    productId: string;
+};
+
+export type GetPricingProfileMatchResponse = {
+    bestMatch: PricingProfile,
+    customer: Customer,
+    product: Product,
+    newPrice: number,
+}
 export function resolvePrice(customer: Customer, product: Product, profiles: PricingProfile[]) {
   const customerGroupIds = customer.groupIds ?? [];
 
@@ -45,7 +56,7 @@ export function resolvePrice(customer: Customer, product: Product, profiles: Pri
     product,
     bestMatch: best,
     newPrice: best ? calculatePrice(product.price, best) : product.price,
-  };
+  } as GetPricingProfileMatchResponse;
 }
 
 export type CreatePricingProfileRequest = {

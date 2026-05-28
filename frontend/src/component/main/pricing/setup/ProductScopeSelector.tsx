@@ -13,7 +13,7 @@ export default function ProductScopeSelector({
         <div className="flex flex-col gap-3">
             <div
           className="w-full text-sm text-[#637381] bg-transparent outline-none"
-          defaultValue="Accordion details..."
+          defaultValue="Details..."
           >
               You are creating a Pricing Profile for
         </div>

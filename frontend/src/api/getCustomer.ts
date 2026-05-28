@@ -9,7 +9,6 @@ export async function getCustomer(name?: string, id?: string) {
       if (name) {
         params.append("name", name);
       }
-      console.log("Fetching customers with params:", params.toString());
       const response = await fetch(
         `${API_URL}/api/customer?${params.toString()}`
       );

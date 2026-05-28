@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { getPricingProfileMatch } from "../../../../api/getPricingProfileMatch";
+import { GetPricingProfileMatchRequest, GetPricingProfileMatchResponse } from "../../../../type/Api";
 
 export default function BestPricePriceProfileSectionAccordion() {
   const [customerId, setCustomerId] = useState("");
   const [productId, setProductId] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<GetPricingProfileMatchResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleMatchPriceTrack = async () => {
@@ -12,13 +13,13 @@ export default function BestPricePriceProfileSectionAccordion() {
       if (!customerId || !productId) {
         throw new Error("Customer ID and Product ID are required");
       }
-
+      setResult(null);
       setLoading(true);
 
       const result = await getPricingProfileMatch({
         customerId,
         productId,
-      });
+      }as GetPricingProfileMatchRequest);
 
       setResult(result);
     } catch (error) {
@@ -67,8 +68,9 @@ export default function BestPricePriceProfileSectionAccordion() {
         </button>
       </div>
 
+      
       {/* Result */}
-      <div className="text-sm text-[#637381]">
+      {result && <><div className="text-sm text-[#637381]">
         For Customer{" "}
         <span className="font-medium text-[#212B36]">
           {result?.customer.name || "-"}
@@ -87,6 +89,25 @@ export default function BestPricePriceProfileSectionAccordion() {
           {result?.bestMatch?.name || "-"}
         </span>
       </div>
+        
+        <div className="text-sm text-[#637381]">
+        Calculation{" "}
+        <span className="font-medium text-[#212B36]">
+          {result?.newPrice ? `$${result.newPrice}` : "$0.00"}
+        </span>
+        {" "}={" "}
+        <span className="font-medium text-[#212B36]">
+            ${result?.product.price || "-"}
+          </span>
+          {result?.bestMatch?.adjustmentMode === "fixed" && <span className="font-medium text-[#212B36]">
+          {result?.bestMatch?.adjustmentIncrementMode === "increase" ? " + " : " - "}
+          ${result?.bestMatch?.adjustmentValue}
+          </span>}
+          {result?.bestMatch?.adjustmentMode === "dynamic" && <span className="font-medium text-[#212B36]">
+            *{100 + (result?.bestMatch?.adjustmentIncrementMode === "increase" ? result?.bestMatch?.adjustmentValue : -result?.bestMatch?.adjustmentValue)}%
+          </span>}        
+      </div>      
+      </>}
 
     </div>
   );

@@ -75,7 +75,6 @@ export default function MainContent() {
   const handlePriceProfileChange = async(newProfile: UpdateProductPriceRequest) => {
     try {
       const result = await updatePriceProfile(newProfile);
-      console.log("Updated:", result);
       setSavedPriceProfiles(result);
     } catch (err) { 
       console.error("Error updating price profile:", err);
@@ -113,7 +112,6 @@ export default function MainContent() {
     async function loadFilters() {
       try {
         const data = await getProductFilters();
-        console.log("Received filters in component:", data.categories);
         setFilters(data);
       } catch (err) {
         console.error("Error loading filters:", err);
@@ -126,7 +124,6 @@ export default function MainContent() {
     async function fetchProducts() {
       try { 
         const data = await getProducts(productFilters);
-        console.log("Fetched products with filters",  data);
         setProducts(data);
       } catch (err) { 
         console.error("Error fetching products:", err);
@@ -177,7 +174,7 @@ export default function MainContent() {
           </>}
 
           {currentStep === 2 && <>
-            <ReviewPriceProfileSectionAccordion priceProfileOptions={priceProfileOptions}
+            <ReviewPriceProfileSectionAccordion prodcutscope = {productScope} priceProfileOptions={priceProfileOptions}
               selectedCustomer={selectedCustomer} selectedCustomerGroup={selectedCustomerGroups}
               selectedProducts={selectedProducts} handlePriceProfileSave={handlePriceProfileSave}/>
           </>}

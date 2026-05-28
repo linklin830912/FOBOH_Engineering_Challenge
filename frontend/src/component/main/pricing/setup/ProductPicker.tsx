@@ -56,7 +56,7 @@ export default function ProductPicker({ products, productScope, profileName, sel
 
       {/* Debug */}
       <div className="text-sm text-[#637381]">
-        You've selected {selectedProducts.length} Products, these will be added to the {profileName || "Price Profile"}.
+        You've selected {productScope === "all" ? "All" : selectedProducts.length} Products, these will be added to the {profileName || "Price Profile"}.
       </div>
 
     </div>
